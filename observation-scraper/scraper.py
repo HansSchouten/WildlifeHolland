@@ -51,14 +51,14 @@ def storeSpecieDetails(name):
 	# append species
 	species[name] = specie
 	# write updated species to disk
-	with open('species.json', 'w') as file:
+	with open('data/species.json', 'w') as file:
 		json.dump(species, file)
 	# relax of the hard work and reduce server workload
 	print('Details of ' + name + ' saved')
 	time.sleep(1)
 
 def getSpecieIdByName(name):
-	d = pq(url="https://waarneming.nl/species/search/?species_group=1&q=" + name)
+	d = pq(url="https://waarneming.nl/species/search/?species_group=1&deep=on&q=" + name)
 	el = d.find('#search-results-table tr').eq(1)
 	if pq(el).text() == '':
 		return None
