@@ -1,16 +1,18 @@
-import sys, time
+import sys, time, os
 import urllib, urllib.request, json
 
 from datetime import date, timedelta
 from pyquery import PyQuery as pq
 from lxml import etree
 
+dir = os.path.dirname(__file__)
+
 # variables
 today = date.today()
 yesterday = date.today() - timedelta(1)
 
 # read main files
-with open('data/species.json') as file:
+with open(dir + '/data/species.json') as file:
 	species = json.load(file)
 
 
@@ -51,7 +53,7 @@ def storeSpecieDetails(name):
 	# append species
 	species[name] = specie
 	# write updated species to disk
-	with open('data/species.json', 'w') as file:
+	with open(dir + '/data/species.json', 'w') as file:
 		json.dump(species, file)
 	# relax of the hard work and reduce server workload
 	print('Details of ' + name + ' saved')
@@ -91,7 +93,7 @@ def getDayData(date):
 			'location' : location.strip(),
 		})
 	
-	with open('data/observations.json', 'w') as file:
+	with open(dir + '/data/observations-' + date.strftime('%Y-%m-%d') + '.json', 'w') as file:
 		json.dump(species_observed, file)
 	
 	return species_observed
