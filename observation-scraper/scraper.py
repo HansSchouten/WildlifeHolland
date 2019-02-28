@@ -74,24 +74,30 @@ def getDayData(date):
 	provinces = [9, 10]
 	rarity = 2
 	daylist_url = 'https://waarneming.nl/fieldwork/observations/daylist/?species_group=1&rarity=' + str(rarity)
-	d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(provinces[1]))
 	
-	species_observed = []
-	# loop through all species and extract interesting information
-	for specie in d.find('.app-content-section tbody tr'):
-		specie = pq(specie)
-		observation_count = specie.find('td').eq(0).text()
-		observation_max = specie.find('td').eq(1).text()
-		name_with_latin = specie.find('td').eq(3).text()
-		name = name_with_latin[:name_with_latin.rfind('-')]
-		location = specie.find('td').eq(4).html()
-		# add specie observations
-		species_observed.append({
-			'observation_count' : observation_count.strip(),
-			'observation_max' : observation_max.strip(),
-			'name' : name.strip(),
-			'location' : location.strip(),
-		})
+	for province in provinces:
+		d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
+		
+		species_observed = []
+		# loop through all species and extract interesting information
+		for specie in d.find('.app-content-section tbody tr'):
+			specie = pq(specie)
+			observation_count = specie.find('td').eq(0).text()
+			observation_max = specie.find('td').eq(1).text()
+			name_with_latin = specie.find('td').eq(3).text()
+			name = name_with_latin[:name_with_latin.rfind('-')]
+			location = specie.find('td').eq(4).html()
+			# add specie observations
+			species_observed.append({
+				'observation_count': observation_count.strip(),
+				'observation_max': observation_max.strip(),
+				'name': name.strip(),
+				'location': location.strip(),
+				'province': province
+			})
+			
+		# relax of the hard work and reduce server workload
+		time.sleep(1)
 	
 	with open(dir + '/data/observations-' + date.strftime('%Y-%m-%d') + '.json', 'w') as file:
 		json.dump(species_observed, file)
