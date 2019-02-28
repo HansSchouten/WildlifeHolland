@@ -84,13 +84,20 @@ def getDayData(date):
 			specie = pq(specie)
 			observation_count = specie.find('td').eq(0).text()
 			observation_max = specie.find('td').eq(1).text()
+			# extract link to observation(s)
+			observation_link = specie.find('td').eq(3).find('a').attr('href')
+			observation_link = 'https://www.waarneming.nl' + observation_link
+			# extract specie name
 			name_with_latin = specie.find('td').eq(3).text()
 			name = name_with_latin[:name_with_latin.rfind('-')]
+			# extract observation(s) location(s)
 			location = specie.find('td').eq(4).html()
-			# add specie observations
+			location = location.replace('href="', 'href="https://www.waarneming.nl')
+			# add observation instance
 			species_observed.append({
 				'observation_count': observation_count.strip(),
 				'observation_max': observation_max.strip(),
+				'observation_link': observation_link.strip(),
 				'name': name.strip(),
 				'location': location.strip(),
 				'province': province
