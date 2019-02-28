@@ -75,13 +75,15 @@ def getDayData(date):
 	rarity = 2
 	daylist_url = 'https://waarneming.nl/fieldwork/observations/daylist/?species_group=1&rarity=' + str(rarity)
 	
+	species_observed = []
 	for province in provinces:
 		d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
 		
-		species_observed = []
 		# loop through all species and extract interesting information
 		for specie in d.find('.app-content-section tbody tr'):
 			specie = pq(specie)
+			if "geen resultaten" in specie.text():
+				continue
 			observation_count = specie.find('td').eq(0).text()
 			observation_max = specie.find('td').eq(1).text()
 			# extract link to observation(s)
