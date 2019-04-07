@@ -5,14 +5,14 @@ from datetime import date, timedelta
 from pyquery import PyQuery as pq
 from lxml import etree
 
-dir = os.path.dirname(__file__)
-
 # settings
 species_groups = [1, 2, 3]
 provinces = [9, 10]
 rarity = 2
 
 # constants
+dir = os.path.dirname(__file__)
+base_url = 'https://waarneming.nl/'
 today = date.today()
 yesterday = date.today() - timedelta(1)
 
@@ -40,7 +40,7 @@ def storeSpecieDetails(name):
     if id is None:
         return
     # request specie details
-    d = pq(url="https://waarneming.nl/species/" + id)
+    d = pq(url=base_url + "species/" + id)
     specie = {'name': name, 'id': id}
     # extract image
     el = d.find('img.app-ratio-box-image').eq(0)
@@ -65,7 +65,7 @@ def storeSpecieDetails(name):
     time.sleep(1)
 
 def getSpecieIdByName(name):
-    d = pq(url="https://waarneming.nl/species/search/?species_group=1&deep=on&q=" + name)
+    d = pq(url=base_url + "species/search/?species_group=1&deep=on&q=" + name)
     el = d.find('#search-results-table tr').eq(1)
     if pq(el).text() == '':
         return None
@@ -76,7 +76,7 @@ def getSpecieIdByName(name):
 
 
 def getObservations(date):
-    daylist_url = 'https://waarneming.nl/fieldwork/observations/daylist/?species_group=1&rarity=' + str(rarity)
+    daylist_url = base_url + 'fieldwork/observations/daylist/?species_group=1&rarity=' + str(rarity)
     
     observations = []
     for province in provinces:
@@ -91,13 +91,13 @@ def getObservations(date):
             observation_max = specie.find('td').eq(1).text()
             # extract link to observation(s)
             observation_link = specie.find('td').eq(3).find('a').attr('href')
-            observation_link = 'https://www.waarneming.nl' + observation_link
+            observation_link = base_url + observation_link
             # extract specie name
             name_with_latin = specie.find('td').eq(3).text()
             name = name_with_latin[:name_with_latin.rfind('-')]
             # extract observation(s) location(s)
             location = specie.find('td').eq(4).html()
-            location = location.replace('href="', 'href="https://www.waarneming.nl')
+            location = location.replace('href="', 'href="' + base_url)
             # add observation instance
             observations.append({
                 'observation_count': observation_count.strip(),
