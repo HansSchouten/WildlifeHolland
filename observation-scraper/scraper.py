@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from pyquery import PyQuery as pq
 from lxml import etree
 
+
 # settings
 species_groups = [1, 2, 3]
 provinces = [9, 10]
@@ -13,25 +14,72 @@ rarity = 2
 # constants
 dir = os.path.dirname(__file__)
 base_url = 'https://waarneming.nl/'
-today = date.today()
-yesterday = date.today() - timedelta(1)
+today = date.today() - timedelta(0)
+date = today
 
 
 def main(argv):
-    observations = getObservations(today)
+    observations = getObservations(date)
+    storeObservations(observations, date)
     appendSpeciesData(observations)
+    
+def getObservations(date):
+    observations = {}
+
+    for group in species_groups:
+        daylist_url = base_url + 'fieldwork/observations/daylist/?species_group=' + str(group) + '&rarity=' + str(rarity)
+        observations[group] = []
+    
+        for province in provinces:
+            d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
+        
+            # loop through all species and extract interesting information
+            for specie in d.find('.app-content-section tbody tr'):
+                specie = pq(specie)
+                if "geen resultaten" in specie.text():
+                    continue
+                observation_count = specie.find('td').eq(0).text()
+                observation_max = specie.find('td').eq(1).text()
+                # extract link to observation(s)
+                observation_link = specie.find('td').eq(3).find('a').attr('href')
+                observation_link = base_url + observation_link
+                # extract specie name
+                name_with_latin = specie.find('td').eq(3).text()
+                name = name_with_latin[:name_with_latin.rfind('-')]
+                # extract observation(s) location(s)
+                location = specie.find('td').eq(4).html()
+                location = location.replace('href="', 'href="' + base_url)
+                # add observation instance
+                observations[group].append({
+                    'observation_count': observation_count.strip(),
+                    'observation_max': observation_max.strip(),
+                    'observation_link': observation_link.strip(),
+                    'name': name.strip(),
+                    'location': location.strip(),
+                    'province': province
+                })
+            
+            # relax of the hard work and reduce server workload
+            time.sleep(1)
+    
+    return observations
+
+
+def storeObservations(observations, date):
+    with open(dir + '/data/observations-' + date.strftime('%Y-%m-%d') + '.json', 'w') as file:
+        json.dump(observations, file)
 
 
 def appendSpeciesData(observations):
     # read current species database
     with open(dir + '/data/species.json') as file:
         species = json.load(file)
-    # df
-    for observation in observations:
-        storeSpecieDetails(observation['name'])
+    # extend species database if this species has not been encountered before
+    for group in observations:
+        for observation in observations[group]:
+            storeSpecieDetails(species, observation['name'])
 
-
-def storeSpecieDetails(name):
+def storeSpecieDetails(species, name):
     # skip if species is already known
     if name in species:
         return
@@ -74,47 +122,6 @@ def getSpecieIdByName(name):
         return None
     return href[9:-1]
 
-
-def getObservations(date):
-    daylist_url = base_url + 'fieldwork/observations/daylist/?species_group=1&rarity=' + str(rarity)
-    
-    observations = []
-    for province in provinces:
-        d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
-        
-        # loop through all species and extract interesting information
-        for specie in d.find('.app-content-section tbody tr'):
-            specie = pq(specie)
-            if "geen resultaten" in specie.text():
-                continue
-            observation_count = specie.find('td').eq(0).text()
-            observation_max = specie.find('td').eq(1).text()
-            # extract link to observation(s)
-            observation_link = specie.find('td').eq(3).find('a').attr('href')
-            observation_link = base_url + observation_link
-            # extract specie name
-            name_with_latin = specie.find('td').eq(3).text()
-            name = name_with_latin[:name_with_latin.rfind('-')]
-            # extract observation(s) location(s)
-            location = specie.find('td').eq(4).html()
-            location = location.replace('href="', 'href="' + base_url)
-            # add observation instance
-            observations.append({
-                'observation_count': observation_count.strip(),
-                'observation_max': observation_max.strip(),
-                'observation_link': observation_link.strip(),
-                'name': name.strip(),
-                'location': location.strip(),
-                'province': province
-            })
-            
-        # relax of the hard work and reduce server workload
-        time.sleep(1)
-    
-    with open(dir + '/data/observations-' + date.strftime('%Y-%m-%d') + '.json', 'w') as file:
-        json.dump(observations, file)
-    
-    return observations
 
 if __name__ == "__main__":
     main(sys.argv)
