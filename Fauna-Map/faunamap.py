@@ -1,6 +1,6 @@
-import sys, getopt
+import sys, getopt, os
+from configparser import ConfigParser
 
-from faunamap.config import Config
 from faunamap.monitors import ObsMonitor
 
 def main(argv):
@@ -25,7 +25,12 @@ def main(argv):
 			command = arg
 
 	# parse config
-	config = Config()
+	configFile = 'config/faunamap.conf'
+	if not os.path.isfile(configFile):
+		print('Config file: %s does not exist' % configFile)
+		exit(2)
+	config = ConfigParser()
+	config.read(configFile)
 
 	# run FaunaMap with the passed command
 	if command == 'monitor':
