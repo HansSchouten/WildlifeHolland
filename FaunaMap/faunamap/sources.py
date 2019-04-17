@@ -1,6 +1,8 @@
 import time
 from pyquery import PyQuery as pq
 
+from faunamap.data import Observations
+
 class ObsScraper:
 	"""
 	This class can scrape observations.
@@ -20,11 +22,11 @@ class ObsScraper:
 
 		"""
 		print('Gathering observations...')
-		observations = {}
+		data = {}
 
 		for group in self.speciesGroups:
 			daylist_url = self.baseUrl + 'fieldwork/observations/daylist/?species_group=' + str(group) + '&rarity=' + str(self.minRarity)
-			observations[group] = []
+			data[group] = []
 			
 			for province in self.provinces:
 				d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
@@ -46,7 +48,7 @@ class ObsScraper:
 					location = specie.find('td').eq(4).html()
 					location = location.replace('href="', 'href="' + self.baseUrl)
 					# add observation instance
-					observations[group].append({
+					data[group].append({
 						'observation_count': observation_count.strip(),
 						'observation_max': observation_max.strip(),
 						'observation_link': observation_link.strip(),
@@ -58,4 +60,6 @@ class ObsScraper:
 				# relax of the hard work and reduce server workload
 				time.sleep(1)
 		
+		observations = Observations(config)
+		observations.data = data
 		return observations

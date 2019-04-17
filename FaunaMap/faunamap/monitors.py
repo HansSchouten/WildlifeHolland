@@ -3,6 +3,8 @@ import pprint as pp
 
 from faunamap.sources import ObsScraper
 from faunamap.data import Storage
+from faunamap.data import Observations
+from faunamap.data import Species
 
 class ObsMonitor:
 	"""
@@ -32,7 +34,7 @@ class ObsMonitor:
 		observations = self.remoteSource.getObservations(date)
 
 		# store today's observations
-		self.storage.store('observations-' + date.strftime('%Y-%m-%d'), observations)
+		observations.store('observations-' + date.strftime('%Y-%m-%d'))
 
 		return observations
 
@@ -41,5 +43,5 @@ class ObsMonitor:
 		Sync the local species list with the remote source based on the new observations.
 
 		"""
-	    # get current collection of species
-		species = self.storage.get('species')
+		# load the current collection of species
+		species = Species()

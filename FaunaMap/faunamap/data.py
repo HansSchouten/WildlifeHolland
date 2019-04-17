@@ -29,3 +29,46 @@ class Storage:
 				return json.load(file)
 		else:
 			return {}
+
+class Observations:
+	"""
+	This class represents a collection of observations, of different types and in different provinces.
+
+	"""
+
+	def __init__(self, config):
+		self.config = config
+		self.storage = Storage(config)
+		self.data = {}
+
+	def store(self, identifier):
+		"""
+		Store all observations using the given identifier.
+
+		"""
+		self.storage.store(identifier, self.data)
+
+	def load(self, identifier):
+		"""
+		Load observations stored at the given given identifier.
+
+		"""
+		self.data = self.storage.get(identifier)
+
+class Species:
+	"""
+	This class represents a collection of all known species
+
+	"""
+
+	def __init__(self, config):
+		self.config = config
+		self.storage = Storage(config)
+		self.data = self.storage.get('species')
+
+	def store(self):
+		"""
+		Store the current list of species.
+
+		"""
+		self.storage.store('species', self.data)
