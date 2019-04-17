@@ -6,9 +6,10 @@ from faunamap.monitors import ObsMonitor
 def main(argv):
 	"""
 	FaunaMap entry point.
+
 	"""
 	# default arguments
-	command = "monitor"
+	command = 'monitor'
 
 	# parse command line arguments
 	usage = 'Usage:\n\n$ faunamap.py -c monitor\n'
@@ -31,6 +32,8 @@ def main(argv):
 		exit(2)
 	config = ConfigParser()
 	config.read(configFile)
+	config.add_section('Global')
+	config.set('Global', 'BaseDir', os.getcwd())
 
 	# run FaunaMap with the passed command
 	if command == 'monitor':

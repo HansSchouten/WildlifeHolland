@@ -19,7 +19,7 @@ class ObsScraper:
 		Return the observations of a specific date
 
 		"""
-		print('Searching for observations...')
+		print('Gathering observations...')
 		observations = {}
 
 		for group in self.speciesGroups:
