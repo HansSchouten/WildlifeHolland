@@ -32,7 +32,7 @@ class Storage:
 
 class Observations:
 	"""
-	This class represents a collection of observations, of different types and in different provinces.
+	This class represents a collection of observations.
 
 	"""
 
@@ -54,6 +54,15 @@ class Observations:
 
 		"""
 		self.data = self.storage.get(identifier)
+
+class Observation:
+	"""
+	This class represents a single specie observation.
+
+	"""
+
+	def __init__(self, config):
+		self.config = config
 
 class Species:
 	"""

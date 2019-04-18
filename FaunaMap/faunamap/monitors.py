@@ -44,4 +44,4 @@ class ObsMonitor:
 
 		"""
 		# load the current collection of species
-		species = Species()
+		species = Species(self.config)

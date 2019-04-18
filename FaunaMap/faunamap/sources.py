@@ -1,6 +1,7 @@
-import time
+import time, sys
 from pyquery import PyQuery as pq
 
+from faunamap.data import Observation
 from faunamap.data import Observations
 
 class ObsScraper:
@@ -22,11 +23,10 @@ class ObsScraper:
 
 		"""
 		print('Gathering observations...')
-		data = {}
+		observations = Observations(self.config)
 
 		for group in self.speciesGroups:
 			daylist_url = self.baseUrl + 'fieldwork/observations/daylist/?species_group=' + str(group) + '&rarity=' + str(self.minRarity)
-			data[group] = []
 			
 			for province in self.provinces:
 				d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
@@ -36,30 +36,31 @@ class ObsScraper:
 					specie = pq(specie)
 					if "geen resultaten" in specie.text():
 						continue
-					observation_count = specie.find('td').eq(0).text()
-					observation_max = specie.find('td').eq(1).text()
+
+					# get the number of observations and largest observed group size
+					specie_count = specie.find('td').eq(0).text().strip()
+					specie_groupSize = specie.find('td').eq(1).text().strip()
+
 					# extract link to observation(s)
-					observation_link = specie.find('td').eq(3).find('a').attr('href')
-					observation_link = self.baseUrl + observation_link
+					specie_link = specie.find('td').eq(3).find('a').attr('href')
+					specie_link = self.baseUrl + observation_link
+
 					# extract specie name
-					name_with_latin = specie.find('td').eq(3).text()
-					name = name_with_latin[:name_with_latin.rfind('-')]
+					specie_name_with_latin = specie.find('td').eq(3).text()
+					specie_name = specie_name_with_latin[:specie_name_with_latin.rfind('-')]
+
 					# extract observation(s) location(s)
-					location = specie.find('td').eq(4).html()
-					location = location.replace('href="', 'href="' + self.baseUrl)
-					# add observation instance
-					data[group].append({
-						'observation_count': observation_count.strip(),
-						'observation_max': observation_max.strip(),
-						'observation_link': observation_link.strip(),
-						'name': name.strip(),
-						'location': location.strip(),
-						'province': province
-					})
+					specie_location = specie.find('td').eq(4).html()
+					specie_location = specie_location.replace('href="', 'href="' + self.config.get('ObsMonitor', 'BaseUrl'))
+
+					# add observation instances for this specie
+
+					sys.exit()
+
 				
 				# relax of the hard work and reduce server workload
 				time.sleep(1)
 		
-		observations = Observations(config)
-		observations.data = data
 		return observations
+
+	#def getObservationsFromSpecie(self, )
