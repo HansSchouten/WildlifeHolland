@@ -55,6 +55,9 @@ class Observations:
 		"""
 		self.data = self.storage.get(identifier)
 
+	def addFromSpecie(self, data):
+		pass
+
 class Observation:
 	"""
 	This class represents a single specie observation.

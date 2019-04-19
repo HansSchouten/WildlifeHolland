@@ -54,6 +54,7 @@ class ObsScraper:
 					specie_location = specie_location.replace('href="', 'href="' + self.config.get('ObsMonitor', 'BaseUrl'))
 
 					# add observation instances for this specie
+					observations.addFromSpecie(specie, getObservationsFromSpecie(specie))
 
 					sys.exit()
 
@@ -63,4 +64,5 @@ class ObsScraper:
 		
 		return observations
 
-	#def getObservationsFromSpecie(self, )
+	def getObservationsFromSpecie(self, specie):
+		pass
