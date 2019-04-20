@@ -1,8 +1,9 @@
 import time, sys
 from pyquery import PyQuery as pq
 
-from faunamap.data import Observation
 from faunamap.data import Observations
+from faunamap.data import SpecieObservations
+from faunamap.data import Observation
 
 class ObsScraper:
 	"""
@@ -32,26 +33,18 @@ class ObsScraper:
 				d = pq(url=daylist_url + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
 				
 				# loop through all species and extract interesting information
-				for specie in d.find('.app-content-section tbody tr'):
-					specie = pq(specie)
+				for doc in d.find('.app-content-section tbody tr'):
+					doc = pq(doc)
 					if "geen resultaten" in specie.text():
 						continue
 
-					# get the number of observations and largest observed group size
-					specie_count = specie.find('td').eq(0).text().strip()
-					specie_groupSize = specie.find('td').eq(1).text().strip()
+					specieObservations = SpecieObservations(self.config)
 
-					# extract link to observation(s)
-					specie_link = specie.find('td').eq(3).find('a').attr('href')
-					specie_link = self.baseUrl + observation_link
-
-					# extract specie name
-					specie_name_with_latin = specie.find('td').eq(3).text()
-					specie_name = specie_name_with_latin[:specie_name_with_latin.rfind('-')]
-
-					# extract observation(s) location(s)
-					specie_location = specie.find('td').eq(4).html()
-					specie_location = specie_location.replace('href="', 'href="' + self.config.get('ObsMonitor', 'BaseUrl'))
+					# 
+					specieObservationsLink = doc.find('td').eq(3).find('a').attr.href
+					specieObservationsLink = self.config.get('ObsMonitor', 'BaseUrl') + specieObservationsLink
+					print(specieObservationsLink)
+					sys.exit()
 
 					# add observation instances for this specie
 					observations.addFromSpecie(specie, getObservationsFromSpecie(specie))

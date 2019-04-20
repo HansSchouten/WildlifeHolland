@@ -58,6 +58,15 @@ class Observations:
 	def addFromSpecie(self, data):
 		pass
 
+class SpecieObservations:
+	"""
+	This class represents all observations of a single specie.
+
+	"""
+
+	def __init__(self, config):
+		self.config = config
+
 class Observation:
 	"""
 	This class represents a single specie observation.
