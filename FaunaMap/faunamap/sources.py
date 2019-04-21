@@ -1,7 +1,9 @@
 import time, sys
+import random
 from pyquery import PyQuery as pq
 from pprint import pprint
 from datetime import date as d
+from urllib.parse import quote
 
 from faunamap.data import Observations
 from faunamap.data import Species
@@ -27,7 +29,7 @@ class ObsScraper:
 		print(url)
 
 		# relax of the hard work and reduce remote server workload
-		time.sleep(2)
+		time.sleep(1 + random.uniform(0, 2))
 
 		# request the document
 		return pq(url=url)
@@ -57,28 +59,31 @@ class ObsScraper:
 					if "geen resultaten" in specieRow.text():
 						break
 
-					# get observation count
-					observationCount = specieRow.find('td').eq(0).text()
+					try:
+						# get observation count
+						observationCount = specieRow.find('td').eq(0).text()
 
-					# extract specie name
-					nameWithLatin = specieRow.find('td').eq(3).text()
-					observationData['specieName'] = nameWithLatin[:nameWithLatin.rfind('-')].strip()
+						# extract specie name
+						nameWithLatin = specieRow.find('td').eq(3).text()
+						observationData['specieName'] = nameWithLatin[:nameWithLatin.rfind('-')].strip()
 
-					# if specie is unknown, retrieve specie details
-					if not species.contains(observationData['specieName']):
-						self.addSpecie(species, observationData['specieName'])
+						# if specie is unknown, retrieve specie details
+						if not species.contains(observationData['specieName']):
+							self.addSpecie(species, specieGroup, observationData['specieName'])
 
-					# extract specie observations list link
-					specieObservationsLink = specieRow.find('td').eq(3).find('a').attr('href')
-					specieObservationsLink = self.baseUrl + specieObservationsLink[1::]
+						# extract specie observations list link
+						specieObservationsLink = specieRow.find('td').eq(3).find('a').attr('href')
+						specieObservationsLink = self.baseUrl + specieObservationsLink[1::]
 
-					# only add/update these specie observations if they are not already part of the observations collection
-					if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
-						# in case this is a single observation, add observation directly
-						if '/observation/' in specieObservationsLink:
-							self.addObservation(observations, specieObservationsLink, observationData)
-						else:
-							self.addSpecieObservations(observations, specieObservationsLink, observationData)
+						# only add/update these specie observations if they are not already part of the observations collection
+						if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
+							# in case this is a single observation, add observation directly
+							if '/observation/' in specieObservationsLink:
+								self.addObservation(observations, specieObservationsLink, observationData)
+							else:
+								self.addSpecieObservations(observations, specieObservationsLink, observationData)
+					except:
+
 		
 		return observations
 
@@ -155,13 +160,13 @@ class ObsScraper:
 			observations.add(observationData.copy())
 
 
-	def addSpecie(self, species, name):
+	def addSpecie(self, species, specieGroup, name):
 		"""
 		Load details of the specie with the given name and append the species collection.
 
 		"""
 		# request specie id
-		id = self.getSpecieIdByName(name)
+		id = self.getSpecieIdByName(specieGroup, name)
 		if id is None:
 			return
 
@@ -197,12 +202,12 @@ class ObsScraper:
 		# append species
 		species.add(specie)
 
-	def getSpecieIdByName(self, name):
+	def getSpecieIdByName(self, specieGroup, name):
 		"""
 		Return the remote specie id given a species name.
 
 		"""
-		doc = self.getDoc(self.baseUrl + "species/search/?species_group=1&deep=on&q=" + name)
+		doc = self.getDoc(self.baseUrl + "species/search/?species_group=" + str(specieGroup) + "&deep=on&q=" + quote(name))
 		el = doc.find('#search-results-table tr').eq(1)
 
 		# return None if no results are found
