@@ -54,24 +54,47 @@ class ObsScraper:
 
 					# only add/update these specie observations if they are not already part of the observations collection
 					if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
-						self.loadSpecieObservations(observations, specieObservationsLink, observationData)
+						self.addSpecieObservations(observations, specieObservationsLink, observationData)
 
 					pprint(observations.data)
 					sys.exit()
 
-				
-				# relax of the hard work and reduce server workload
+				# relax of the hard work and reduce remote server workload
 				time.sleep(1)
 		
 		return observations
 
-	def loadSpecieObservations(self, observations, specieObservationsLink, observationData):
+	def addSpecieObservations(self, observations, specieObservationsLink, observationData):
 		"""
-		Load all specie observations from the remote source using the provided link.
+		Add all specie observations from the remote source using the provided link.
 
 		"""
 		doc = pq(url=specieObservationsLink)
+		self.addSpecieObservationsFromDoc(observations, observationData, doc)
 
+		# if document does not contain pagination return from this method
+		if doc.find('.pagination').html() is '':
+			return
+
+		page = 1
+		while True:		
+			# relax of the hard work and reduce remote server workload
+			time.sleep(1)
+
+			# add observations of this page of specie observations
+			page += 1
+			doc = pq(url=specieObservationsLink + '&page=' + str(page))
+			self.addSpecieObservationsFromDoc(observations, observationData, doc)
+
+			# if no more pages exist, return from this method
+			if doc.find('.pagination').eq(0).find('.last.disabled').html() is not None:
+				return
+
+	def addSpecieObservationsFromDoc(self, observations, observationData, doc):
+		"""
+		Add all specie observations from the remote source using the provided html document.
+
+		"""
 		# loop through all observations and extract necessary information
 		for observationRow in doc.find('.app-content-section tbody tr'):
 			observationRow = pq(observationRow)
@@ -88,12 +111,16 @@ class ObsScraper:
 			
 			# extract observation id
 			observationData['id'] = observationUrl.split('/')[-2:][0]
+			print(observationData['id'])
 
 			# add the observation details if this observation is not yet in specieObservations
 			if not observations.contains(observationData['id']):
-				self.loadObservation(observations, observationData)
+				self.addObservation(observations, observationData)
+				
+		# relax of the hard work and reduce remote server workload
+		time.sleep(1)
 
-	def loadObservation(self, observations, observationData):
+	def addObservation(self, observations, observationData):
 		"""
 		Create a new observation into the passed collection using the info stored at the passed link.
 
@@ -105,5 +132,8 @@ class ObsScraper:
 		observationData['lat'] = latLong[0]
 		observationData['long'] = latLong[1]
 
-		# add observation to specieObservations
+		# add observation
 		observations.add(observationData.copy())
+
+		# relax of the hard work and reduce remote server workload
+		time.sleep(1)
