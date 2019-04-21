@@ -54,10 +54,11 @@ class ObsScraper:
 
 					# only add/update these specie observations if they are not already part of the observations collection
 					if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
-						self.addSpecieObservations(observations, specieObservationsLink, observationData)
-
-					pprint(observations.data)
-					sys.exit()
+						# in case this is a single observation, add observation directly
+						if '/observation/' in specieObservationsLink:
+							self.addObservation(observations, specieObservationsLink, observationData)
+						else:
+							self.addSpecieObservations(observations, specieObservationsLink, observationData)
 
 				# relax of the hard work and reduce remote server workload
 				time.sleep(1)
@@ -69,18 +70,16 @@ class ObsScraper:
 		Add all specie observations from the remote source using the provided link.
 
 		"""
+		# add species of page 1, which always exists
 		doc = pq(url=specieObservationsLink)
 		self.addSpecieObservationsFromDoc(observations, observationData, doc)
 
 		# if document does not contain pagination return from this method
-		if doc.find('.pagination').html() is '':
+		if doc.find('.pagination').html() is None:
 			return
 
 		page = 1
-		while True:		
-			# relax of the hard work and reduce remote server workload
-			time.sleep(1)
-
+		while True:
 			# add observations of this page of specie observations
 			page += 1
 			doc = pq(url=specieObservationsLink + '&page=' + str(page))
@@ -99,38 +98,45 @@ class ObsScraper:
 		for observationRow in doc.find('.app-content-section tbody tr'):
 			observationRow = pq(observationRow)
 
-			# extract observation time
-			observationTimeParts = observationRow.find('td').eq(0).text().split(' ')
-			observationData['time'] = None
-			if len(observationTimeParts) == 2:
-				observationData['time'] = observationTimeParts[1]
-
 			# extract observation link
 			observationUrl = observationRow.find('td').eq(0).find('a').attr('href')
-			observationData['url'] = self.baseUrl + observationUrl[1::]
+			observationUrl = self.baseUrl + observationUrl[1::]
 			
-			# extract observation id
-			observationData['id'] = observationUrl.split('/')[-2:][0]
-			print(observationData['id'])
-
-			# add the observation details if this observation is not yet in specieObservations
-			if not observations.contains(observationData['id']):
-				self.addObservation(observations, observationData)
+			# add observation
+			self.addObservation(observations, observationUrl, observationData)
 				
 		# relax of the hard work and reduce remote server workload
 		time.sleep(1)
 
-	def addObservation(self, observations, observationData):
+	def addObservation(self, observations, observationUrl, observationData):
 		"""
 		Create a new observation into the passed collection using the info stored at the passed link.
 
 		"""
-		doc = pq(url=observationData['url'])
+		# extract observation id
+		observationData['id'] = observationUrl.split('/')[-2:][0]
+
+		# return this method if the observation is already present in the observations collection
+		if observations.contains(observationData['id']):
+			return
+
+		print(observationUrl)
+
+		# request observation page
+		doc = pq(url=observationUrl)
+
+		# extract observation time
+		observationTimeParts = doc.find('.app-grid-table tr:first-of-type td').eq(0).text().split(' ')
+		observationData['time'] = None
+		if len(observationTimeParts) == 2:
+			observationData['time'] = observationTimeParts[1]
 
 		# extract the latitude and longitude of the observation
 		latLong = doc.find('.teramap-coordinates-coords').eq(0).text().split(', ')
 		observationData['lat'] = latLong[0]
 		observationData['long'] = latLong[1]
+
+		pprint(observationData)
 
 		# add observation
 		observations.add(observationData.copy())

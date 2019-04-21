@@ -84,6 +84,7 @@ class Observations:
 
 		self.data[obs['specieGroup']][obs['province']][obs['specieName']][obs['id']] = observationData
 		self.flattened[obs['id']] = observationData
+		self.store()
 
 	def needsUpdate(self, specieGroup, province, specieName, observationCount):
 		"""
@@ -99,7 +100,7 @@ class Observations:
 		if specieName not in self.data[specieGroup][province]:
 			return True
 
-		if len(self.data[specieGroup][province][specieName]) < observationCount:
+		if len(self.data[specieGroup][province][specieName]) < int(observationCount):
 			return True
 
 		return False
