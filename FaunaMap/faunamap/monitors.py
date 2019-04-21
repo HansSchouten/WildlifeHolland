@@ -1,5 +1,5 @@
 from datetime import date as d, timedelta
-import pprint as pp
+from pprint import pprint
 
 from faunamap.sources import ObsScraper
 from faunamap.data import Storage
@@ -34,7 +34,7 @@ class ObsMonitor:
 		observations = self.remoteSource.getObservations(date)
 
 		# store today's observations
-		observations.store('observations-' + date.strftime('%Y-%m-%d'))
+		observations.store()
 
 		return observations
 

@@ -30,51 +30,87 @@ class Storage:
 		else:
 			return {}
 
+
 class Observations:
 	"""
 	This class represents a collection of observations.
 
 	"""
 
-	def __init__(self, config):
+	def __init__(self, config, date):
 		self.config = config
+		self.date = date
 		self.storage = Storage(config)
+		self.identifier = 'observations-' + date.strftime('%Y-%m-%d')
 		self.data = {}
+		self.flattened = {}
 
-	def store(self, identifier):
+	def store(self):
 		"""
 		Store all observations using the given identifier.
 
 		"""
-		self.storage.store(identifier, self.data)
+		self.storage.store(self.identifier, self.data)
 
-	def load(self, identifier):
+	def load(self):
 		"""
 		Load observations stored at the given given identifier.
 
 		"""
-		self.data = self.storage.get(identifier)
+		self.data = self.storage.get(self.identifier)
+		
+		# map data to flattened observations
+		for specieGroup in self.data:
+			for province in self.data[specieGroup]:
+				for specieName in self.data[specieGroup][province]:
+					for observationId in self.data[specieGroup][province][specieName]:
+						observation = self.data[specieGroup][province][specieName][observationId]
+						self.flattened[observationId] = observation.copy()
 
-	def addFromSpecie(self, data):
-		pass
+	def add(self, observationData):
+		"""
+		Add specie observations to this collection of all observations.
 
-class SpecieObservations:
-	"""
-	This class represents all observations of a single specie.
+		"""
+		obs = observationData
+		if obs['specieGroup'] not in self.data:
+			self.data[obs['specieGroup']] = {}
 
-	"""
+		if obs['province'] not in self.data[obs['specieGroup']]:
+			self.data[obs['specieGroup']][obs['province']] = {}
 
-	def __init__(self, config):
-		self.config = config
+		if obs['specieName'] not in self.data[obs['specieGroup']][obs['province']]:
+			self.data[obs['specieGroup']][obs['province']][obs['specieName']] = {}
 
-class Observation:
-	"""
-	This class represents a single specie observation.
+		self.data[obs['specieGroup']][obs['province']][obs['specieName']][obs['id']] = observationData
+		self.flattened[obs['id']] = observationData
 
-	"""
+	def needsUpdate(self, specieGroup, province, specieName, observationCount):
+		"""
+		Return whether the given specie observations are already part of this observations collection.
 
-	def __init__(self, config):
-		self.config = config
+		"""
+		if specieGroup not in self.data:
+			return True
+
+		if province not in self.data[specieGroup]:
+			return True
+
+		if specieName not in self.data[specieGroup][province]:
+			return True
+
+		if len(self.data[specieGroup][province][specieName]) < observationCount:
+			return True
+
+		return False
+
+	def contains(self, observationId):
+		"""
+		Return whether an observation with the given id is present.
+
+		"""
+		return observationId in self.flattened
+
 
 class Species:
 	"""
