@@ -1,1 +1,1 @@
-py -m pip install pyquery
+python -m pip install pyquery
