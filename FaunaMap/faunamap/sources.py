@@ -5,6 +5,7 @@ from pprint import pprint
 from datetime import date as d
 from urllib.parse import quote
 
+from faunamap.logging import Logger
 from faunamap.data import Observations
 from faunamap.data import Species
 
@@ -20,6 +21,7 @@ class ObsScraper:
 		self.speciesGroups = config.get('ObsMonitor', 'SpeciesGroups').split(',')
 		self.provinces = config.get('ObsMonitor', 'Provinces').split(',')
 		self.minRarity = config.get('ObsMonitor', 'MinRarity')
+		self.logger = Logger(config)
 
 	def getDoc(self, url):
 		"""
@@ -51,38 +53,43 @@ class ObsScraper:
 			
 			for province in self.provinces:
 				observationData['province'] = province
-				doc = self.getDoc(daylistUrl + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
+				provinceUrl = daylistUrl + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province)
+				try:
+					doc = self.getDoc(provinceUrl)
 				
-				# loop through all species and extract necessary information
-				for specieRow in doc.find('.app-content-section tbody tr'):
-					specieRow = pq(specieRow)
-					if "geen resultaten" in specieRow.text():
-						break
+					# loop through all species and extract necessary information
+					for specieRow in doc.find('.app-content-section tbody tr'):
+						specieRow = pq(specieRow)
+						if "geen resultaten" in specieRow.text():
+							break
 
-					try:
-						# get observation count
-						observationCount = specieRow.find('td').eq(0).text()
+						try:
+							# get observation count
+							observationCount = specieRow.find('td').eq(0).text()
 
-						# extract specie name
-						nameWithLatin = specieRow.find('td').eq(3).text()
-						observationData['specieName'] = nameWithLatin[:nameWithLatin.rfind('-')].strip()
+							# extract specie name
+							nameWithLatin = specieRow.find('td').eq(3).text()
+							observationData['specieName'] = nameWithLatin[:nameWithLatin.rfind('-')].strip()
 
-						# if specie is unknown, retrieve specie details
-						if not species.contains(observationData['specieName']):
-							self.addSpecie(species, specieGroup, observationData['specieName'])
+							# if specie is unknown, retrieve specie details
+							if not species.contains(observationData['specieName']):
+								self.addSpecie(species, specieGroup, observationData['specieName'])
 
-						# extract specie observations list link
-						specieObservationsLink = specieRow.find('td').eq(3).find('a').attr('href')
-						specieObservationsLink = self.baseUrl + specieObservationsLink[1::]
+							# extract specie observations list link
+							specieObservationsLink = specieRow.find('td').eq(3).find('a').attr('href')
+							specieObservationsLink = self.baseUrl + specieObservationsLink[1::]
 
-						# only add/update these specie observations if they are not already part of the observations collection
-						if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
-							# in case this is a single observation, add observation directly
-							if '/observation/' in specieObservationsLink:
-								self.addObservation(observations, specieObservationsLink, observationData)
-							else:
-								self.addSpecieObservations(observations, specieObservationsLink, observationData)
-					except:
+							# only add/update these specie observations if they are not already part of the observations collection
+							if observations.needsUpdate(specieGroup, province, observationData['specieName'], observationCount):
+								# in case this is a single observation, add observation directly
+								if '/observation/' in specieObservationsLink:
+									self.addObservation(observations, specieObservationsLink, observationData)
+								else:
+									self.addSpecieObservations(observations, specieObservationsLink, observationData)
+						except Exception as e:
+							self.logger.log('Importing specie observations failed.\nData: ' +  str(observationData) + '.\nError: ' + str(e))
+				except Exception as e:
+					self.logger.log('Error while requesting province observations.\nUrl: ' +  str(provinceUrl) + '.\nError: ' + str(e))
 
 		
 		return observations
