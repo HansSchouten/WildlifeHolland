@@ -84,6 +84,8 @@ class Observations:
 
 		self.data[obs['specieGroup']][obs['province']][obs['specieName']][obs['id']] = observationData
 		self.flattened[obs['id']] = observationData
+
+		# save observations to storage
 		self.store()
 
 	def needsUpdate(self, specieGroup, province, specieName, observationCount):
@@ -107,7 +109,7 @@ class Observations:
 
 	def contains(self, observationId):
 		"""
-		Return whether an observation with the given id is present.
+		Return whether an observation with the given id is known.
 
 		"""
 		return observationId in self.flattened
@@ -130,3 +132,20 @@ class Species:
 
 		"""
 		self.storage.store('species', self.data)
+
+	def contains(self, name):
+		"""
+		Return whether a specie with the given name is known.
+
+		"""
+		return name in self.data
+
+	def add(self, specie):
+		"""
+		Add a new specie with the given specie data.
+
+		"""
+		self.data[specie['name']] = specie
+
+		# save species to storage
+		self.store()

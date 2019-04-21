@@ -19,29 +19,15 @@ class ObsMonitor:
 
 	def sync(self):
 		"""
-		Sync with the remote data source.
+		Sync observations with the remote data source.
 
 		"""
-		observations = self.syncObservations()
-		self.syncSpecies(observations)
-
-	def syncObservations(self):
-		"""
-		Sync the local observations with the remote source.
-
-		"""
+		# load today's observations from disk
 		date = d.today()
-		observations = self.remoteSource.getObservations(date)
+		observations = Observations(self.config, date)
+		observations.load()
 
-		# store today's observations
-		observations.store()
+		# add new observations from the remote source
+		self.remoteSource.syncObservations(observations)
 
 		return observations
-
-	def syncSpecies(self, observations):
-		"""
-		Sync the local species list with the remote source based on the new observations.
-
-		"""
-		# load the current collection of species
-		species = Species(self.config)

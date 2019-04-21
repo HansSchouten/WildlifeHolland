@@ -1,8 +1,10 @@
 import time, sys
 from pyquery import PyQuery as pq
 from pprint import pprint
+from datetime import date as d
 
 from faunamap.data import Observations
+from faunamap.data import Species
 
 class ObsScraper:
 	"""
@@ -17,15 +19,29 @@ class ObsScraper:
 		self.provinces = config.get('ObsMonitor', 'Provinces').split(',')
 		self.minRarity = config.get('ObsMonitor', 'MinRarity')
 
-	def getObservations(self, date):
+	def getDoc(self, url):
 		"""
-		Return the observations of a specific date
+		Return the HTML document stored at the given url.
 
 		"""
-		print('Gathering observations...')
-		observations = Observations(self.config, date)
-		observations.load()
+		print(url)
+
+		# relax of the hard work and reduce remote server workload
+		time.sleep(2)
+
+		# request the document
+		return pq(url=url)
+
+	def syncObservations(self, observations):
+		"""
+		Add new observations to the passed observations collection.
+
+		"""
+		species = Species(self.config)
+		date = observations.date
 		observationData = {}
+		
+		print('Gathering observations...')
 
 		for specieGroup in self.speciesGroups:
 			observationData['specieGroup'] = specieGroup
@@ -33,7 +49,7 @@ class ObsScraper:
 			
 			for province in self.provinces:
 				observationData['province'] = province
-				doc = pq(url=daylistUrl + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
+				doc = self.getDoc(daylistUrl + '&date=' + date.strftime('%Y-%m-%d') + '&province=' + str(province))
 				
 				# loop through all species and extract necessary information
 				for specieRow in doc.find('.app-content-section tbody tr'):
@@ -44,9 +60,13 @@ class ObsScraper:
 					# get observation count
 					observationCount = specieRow.find('td').eq(0).text()
 
-	                # extract specie name
+					# extract specie name
 					nameWithLatin = specieRow.find('td').eq(3).text()
 					observationData['specieName'] = nameWithLatin[:nameWithLatin.rfind('-')].strip()
+
+					# if specie is unknown, retrieve specie details
+					if not species.contains(observationData['specieName']):
+						self.addSpecie(species, observationData['specieName'])
 
 					# extract specie observations list link
 					specieObservationsLink = specieRow.find('td').eq(3).find('a').attr('href')
@@ -59,9 +79,6 @@ class ObsScraper:
 							self.addObservation(observations, specieObservationsLink, observationData)
 						else:
 							self.addSpecieObservations(observations, specieObservationsLink, observationData)
-
-				# relax of the hard work and reduce remote server workload
-				time.sleep(1)
 		
 		return observations
 
@@ -71,7 +88,7 @@ class ObsScraper:
 
 		"""
 		# add species of page 1, which always exists
-		doc = pq(url=specieObservationsLink)
+		doc = self.getDoc(specieObservationsLink)
 		self.addSpecieObservationsFromDoc(observations, observationData, doc)
 
 		# if document does not contain pagination return from this method
@@ -82,7 +99,7 @@ class ObsScraper:
 		while True:
 			# add observations of this page of specie observations
 			page += 1
-			doc = pq(url=specieObservationsLink + '&page=' + str(page))
+			doc = self.getDoc(specieObservationsLink + '&page=' + str(page))
 			self.addSpecieObservationsFromDoc(observations, observationData, doc)
 
 			# if no more pages exist, return from this method
@@ -104,9 +121,6 @@ class ObsScraper:
 			
 			# add observation
 			self.addObservation(observations, observationUrl, observationData)
-				
-		# relax of the hard work and reduce remote server workload
-		time.sleep(1)
 
 	def addObservation(self, observations, observationUrl, observationData):
 		"""
@@ -120,10 +134,8 @@ class ObsScraper:
 		if observations.contains(observationData['id']):
 			return
 
-		print(observationUrl)
-
 		# request observation page
-		doc = pq(url=observationUrl)
+		doc = self.getDoc(observationUrl)
 
 		# extract observation time
 		observationTimeParts = doc.find('.app-grid-table tr:first-of-type td').eq(0).text().split(' ')
@@ -133,13 +145,72 @@ class ObsScraper:
 
 		# extract the latitude and longitude of the observation
 		latLong = doc.find('.teramap-coordinates-coords').eq(0).text().split(', ')
-		observationData['lat'] = latLong[0]
-		observationData['long'] = latLong[1]
+		
+		# the observation is only usable if location details are present
+		if len(latLong) == 2:
+			observationData['lat'] = latLong[0]
+			observationData['long'] = latLong[1]
 
-		pprint(observationData)
+			# add observation
+			observations.add(observationData.copy())
 
-		# add observation
-		observations.add(observationData.copy())
 
-		# relax of the hard work and reduce remote server workload
-		time.sleep(1)
+	def addSpecie(self, species, name):
+		"""
+		Load details of the specie with the given name and append the species collection.
+
+		"""
+		# request specie id
+		id = self.getSpecieIdByName(name)
+		if id is None:
+			return
+
+		# request specie details
+		doc = self.getDoc(self.baseUrl + "species/" + id)
+		specie = {
+			'name': name,
+			'id': id, 'url':
+			self.baseUrl + "species/" + id,
+			'lastUpdateDate': d.today().strftime('%Y-%m-%d')
+		}
+
+		# extract taxonomy family
+		el = doc.find('.label-group a.label-primary').eq(0)
+		specie['family'] = el.text().strip()
+		specie['familyUrl'] = self.baseUrl + el.attr('href')[1::]
+
+		# extract image
+		el = doc.find('img.app-ratio-box-image').eq(0)
+		if pq(el).attr('src') == None:
+			return
+		specie['imageUrl'] = pq(el).attr('src')
+
+		# extract number of observations
+		html = doc.html()
+		indexStart = html.rfind('num_observations') + 19
+		indexEnd = int(html.find('}', indexStart))
+		observationCount = html[indexStart:indexEnd]
+		if not observationCount.isdigit():
+			return
+		specie['observationCount'] = observationCount.strip()
+
+		# append species
+		species.add(specie)
+
+	def getSpecieIdByName(self, name):
+		"""
+		Return the remote specie id given a species name.
+
+		"""
+		doc = self.getDoc(self.baseUrl + "species/search/?species_group=1&deep=on&q=" + name)
+		el = doc.find('#search-results-table tr').eq(1)
+
+		# return None if no results are found
+		if pq(el).text() == '':
+			return None
+
+		# extract specie id from search result url
+		href = pq(el.find('a')).attr('href')
+		if len(href) < 11:
+			return None
+		return href[9:-1]
