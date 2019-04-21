@@ -183,6 +183,7 @@ class ObsScraper:
 		# request specie details
 		doc = self.getDoc(self.baseUrl + "species/" + id)
 		specie = {
+			'specieGroup': specieGroup,
 			'name': name,
 			'id': id, 'url':
 			self.baseUrl + "species/" + id,
