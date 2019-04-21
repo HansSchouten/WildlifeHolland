@@ -27,6 +27,13 @@ class ObsMonitor:
 		if not self.canSync():
 			return
 
+		# store starting timestamp
+		startTimestamps = self.storage.get('start-timestamps')
+		if len(startTimestamps) == 0:
+			startTimestamps['list'] = []
+		startTimestamps['list'].append(str(datetime.now()))
+		self.storage.store('start-timestamps', startTimestamps)
+
 		# load today's observations from disk
 		date = d.today()
 		observations = Observations(self.config, date)

@@ -26,14 +26,15 @@ def main(argv):
 			command = arg
 
 	# parse config
-	configFile = 'config/faunamap.conf'
+	baseDir = os.path.dirname(os.path.realpath(__file__))
+	configFile = baseDir + '/config/faunamap.conf'
 	if not os.path.isfile(configFile):
 		print('Config file: %s does not exist' % configFile)
 		exit(2)
 	config = ConfigParser()
 	config.read(configFile)
 	config.add_section('Global')
-	config.set('Global', 'BaseDir', os.getcwd())
+	config.set('Global', 'BaseDir', baseDir)
 
 	# run FaunaMap with the passed command
 	if command == 'monitor':

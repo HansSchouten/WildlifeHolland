@@ -12,7 +12,7 @@ class Logger:
 		self.config = config
 
 		# open log file in write mode
-		logFilePath = self.config.get('Logging', 'logFile')
+		logFilePath = self.config.get('Global', 'BaseDir') + '/' + self.config.get('Logging', 'logFile')
 		self.logToConsole = self.config.get('Logging', 'logToConsole')
 		self.logFile = open(logFilePath, "a")
 		self.storage = Storage(config)
