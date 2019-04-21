@@ -33,6 +33,9 @@ class ObsScraper:
 		# relax of the hard work and reduce remote server workload
 		time.sleep(1 + random.uniform(0, 2))
 
+		# update sync status timestamp
+		self.logger.updateStatus()
+
 		# request the document
 		return pq(url=url)
 
