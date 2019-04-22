@@ -1,25 +1,17 @@
-# Laravel-Vue-Quasar SPA preset
+# FaunaMap Web Interface
 
-This repository is forked from [https://github.com/cretueusebiu/laravel-vue-spa](https://github.com/cretueusebiu/laravel-vue-spa). The original repository provides a Laravel-Vue preset based on Bootstrap 4. Instead of Bootstrap, this repository uses the [Quasar Framework](https://v1.quasar-framework.org/) resulting in applications with a powerful Material UI.
+This web interface offers interactive maps for exploring wildlife observations. The web interface is based on [https://github.com/HansSchouten/Laravel-Vue-Quasar-SPA](https://github.com/HansSchouten/Laravel-Vue-Quasar-SPA), leveraging Laravel, Vue.js and the [Quasar Framework](https://v1.quasar-framework.org/).
 
-<p align="center">
-<img src="https://i.imgur.com/MQMGsVH.png">
-</p>
-
-## Features
+## Technical Features
 
 - Laravel 5.7 
 - Vue + VueRouter + Vuex + VueI18n + ESlint
-- Pages with dynamic import and custom layouts
-- Login, register and password reset
 - Authentication with JWT
 - Socialite integration
 - Quasar 1.0.0 Beta 11
 
 ## Installation
 
-- `git clone https://github.com/HansSchouten/Laravel-Vue-Quasar-SPA.git`
-- `cd Laravel-Vue-Quasar-SPA`
 - `cp .env.example .env`
 - Edit `.env` and set your database connection details
 - `composer install`
@@ -47,7 +39,3 @@ npm run hot
 ```bash
 npm run production
 ```
-
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for information about the changes made on the original repository.
