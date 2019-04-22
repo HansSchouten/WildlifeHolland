@@ -11,3 +11,6 @@ export const SET_LOCALE = 'SET_LOCALE'
 
 // drawer.js
 export const SET_DRAWER = 'SET_DRAWER'
+
+// observations
+export const FETCH_OBSERVATIONS_SUCCESS = 'FETCH_OBSERVATIONS_SUCCESS'

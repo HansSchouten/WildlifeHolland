@@ -10,7 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('{path}', function () {
     return view('index');
 })->where('path', '(.*)');
