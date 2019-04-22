@@ -5,7 +5,7 @@
 
       <q-btn flat no-caps stretch :to="{ name: 'dashboard' }" class="gt-sm">
         <q-avatar>
-          <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
+          <img src="/images/logo.png">
         </q-avatar>
         <q-toolbar-title>
           {{ appName }}
