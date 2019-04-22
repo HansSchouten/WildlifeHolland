@@ -8,7 +8,7 @@ export const state = {
 
 // getters
 export const getters = {
-    websites: state => state.observations,
+    observations: state => state.observations
 }
 
 // mutations
@@ -24,7 +24,7 @@ export const actions = {
         try {
             const { data } = await axios.get('/api/observations')
 
-            commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data.data })
+            commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data })
         } catch (e) {
             console.log(e)
         }
