@@ -1,6 +1,6 @@
 #layout-admin {
   .text-subtitle1 {
-    color: rgba(0,0,0,0.54);
+    color: rgba(0, 0, 0, 0.54);
     font-size: 14px;
     line-height: 24px;
   }
@@ -10,7 +10,7 @@
 
     #searchbox {
       height: 50px;
-      border-bottom: 1px solid rgba(0,0,0,.12);
+      border-bottom: 1px solid rgba(0, 0, 0, .12);
 
       .q-field__control,
       .q-field__append {
@@ -29,11 +29,13 @@
           color: #027be3;
         }
       }
+
       &.q-expansion-item--expanded > div > .q-item > .q-item__section--main {
         color: #027be3;
         font-weight: 700;
       }
     }
+
     .q-expansion-item__content .q-item {
       border-radius: 0 10px 10px 0;
       margin-right: 12px;

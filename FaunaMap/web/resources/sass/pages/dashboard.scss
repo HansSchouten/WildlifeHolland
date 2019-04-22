@@ -1,0 +1,31 @@
+#page-dashboard {
+  #observation-list {
+    .q-item {
+      padding: 16px 16px;
+
+      .specie-name {
+        font-size: 1.3em;
+        margin-bottom: 12px;
+      }
+
+      .observation-details {
+        font-size: 0.95em;
+
+        .detail {
+          display: inline-block;
+          margin-right: 12px;
+          min-width: 150px;
+
+          .far, .fas {
+            font-size: 0.8em;
+            margin-top: -1px;
+          }
+        }
+      }
+
+      .q-item__section--side > .q-avatar {
+        font-size: 70px;
+      }
+    }
+  }
+}

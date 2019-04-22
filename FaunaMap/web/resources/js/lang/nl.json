@@ -30,5 +30,7 @@
   "password_updated": "Het wachtwoord is gewijzigd!",
   "new_password": "Nieuw wachtwoord",
   "login_with": "Inloggen met",
-  "register_with": "Registreren met"
+  "register_with": "Registreren met",
+
+  "observation": "waarneming | waarnemingen"
 }

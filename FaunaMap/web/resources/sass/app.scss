@@ -1,6 +1,7 @@
 @import 'variables';
 @import '~sweetalert2/src/sweetalert2';
 
-@import 'layout';
+@import 'elements';
+@import 'layouts';
+@import 'pages';
 
-@import 'elements/transitions';

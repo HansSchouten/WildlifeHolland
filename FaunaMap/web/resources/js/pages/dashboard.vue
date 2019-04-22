@@ -1,7 +1,6 @@
 <template>
-    <div class="q-pa-md">
-        <q-list bordered>
-
+    <div id="page-dashboard">
+        <q-list id="observation-list">
             <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`">
                 <q-item-section avatar>
                     <q-avatar>
@@ -9,10 +8,19 @@
                     </q-avatar>
                 </q-item-section>
                 <q-item-section>
-                    {{ observation.name }}
+                    <span class="specie-name">
+                        {{ observation.name }}
+                    </span>
+                    <span class="observation-details">
+                        <span class="detail">
+                            <q-icon name="far fa-comment" /> {{ observation.count }} {{ $tc('observation', observation.count) }}
+                        </span>
+                        <span class="detail">
+                            <q-icon name="far fa-clock" /> {{ observation.lastObservationTime }}
+                        </span>
+                    </span>
                 </q-item-section>
             </q-item>
-
         </q-list>
     </div>
 </template>
@@ -26,11 +34,6 @@ export default {
     metaInfo () {
         return { title: this.$t('dashboard') }
     },
-    data () {
-        return {
-            text: ''
-        }
-    },
 
     computed: mapGetters({
         observations: 'observations/observations'
@@ -42,6 +45,7 @@ export default {
             await this.$store.dispatch('observations/fetchObservations')
         }
     },
+
     mounted () {
         this.fetchObservations()
     }

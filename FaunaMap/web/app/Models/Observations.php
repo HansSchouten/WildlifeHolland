@@ -31,19 +31,37 @@ class Observations
                     continue;
                 }
 
+                // get time of last the observation
+                $lastTime = 0;
+                $lastTimeString = null;
+                foreach ($specieObservations as $observationId => $observation) {
+                    $observationTime = strtotime($observation['time']);
+                    if ($observationTime > $lastTime) {
+                        $lastTime = $observationTime;
+                        $lastTimeString = $observation['time'];
+                    }
+                }
+
                 // add to observationList or update observation information based on province data
                 $specie = $species[$specieName];
                 if (! isset($observationList[$specieName])) {
                     $observationList[$specieName] = [
                         'name' => $specieName,
-                        'observationCount' => sizeof($specieObservations),
+                        'count' => sizeof($specieObservations),
                         'provinces' => [$province],
                         'specieImage' => $specie['imageUrl'],
-                        'specieAbundance' => $specie['observationCount']
+                        'specieAbundance' => $specie['observationCount'],
+                        'lastObservationTime' => $lastTimeString
                     ];
                 } else {
                     $observationList[$specieName]['provinces'][] = $province;
-                    $observationList[$specieName]['observationCount'] += sizeof($specieObservations);
+                    $observationList[$specieName]['count'] += sizeof($specieObservations);
+
+                    // replace time of last observation, if a more recent observation is encountered
+                    if ($observationList[$specieName]['lastObservationTime'] === null ||
+                        $lastTime > strtotime($observationList[$specieName]['lastObservationTime'])) {
+                        $observationList[$specieName]['lastObservationTime'] = $lastTimeString;
+                    }
                 }
             }
         }
