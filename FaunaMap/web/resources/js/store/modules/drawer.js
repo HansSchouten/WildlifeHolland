@@ -8,7 +8,7 @@ export const state = {
 // mutations
 export const mutations = {
     [types.SET_DRAWER] (state, newDrawerState) {
-        state.leftDrawer = newDrawerState;
+        state.leftDrawer = newDrawerState
     }
 }
 
