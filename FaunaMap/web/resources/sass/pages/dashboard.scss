@@ -5,26 +5,34 @@
 
       .specie-name {
         font-size: 1.3em;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
 
       .observation-details {
         font-size: 0.95em;
 
         .detail {
-          display: inline-block;
+          display: block;
           margin-right: 12px;
           min-width: 150px;
 
-          .far, .fas {
+          .far, .fas, .fab {
             font-size: 0.8em;
             margin-top: -1px;
           }
         }
       }
 
-      .q-item__section--side > .q-avatar {
-        font-size: 70px;
+      .q-item__section--side {
+        padding-right: 20px;
+
+        & > .q-avatar {
+          font-size: 100px;
+
+          img {
+            width: auto;
+          }
+        }
       }
     }
   }

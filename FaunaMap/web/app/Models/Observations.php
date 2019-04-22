@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Province;
+
 class Observations
 {
 
@@ -48,13 +50,13 @@ class Observations
                     $observationList[$specieName] = [
                         'name' => $specieName,
                         'count' => sizeof($specieObservations),
-                        'provinces' => [$province],
+                        'provinces' => Province::getKey($province),
                         'specieImage' => $specie['imageUrl'],
                         'specieAbundance' => $specie['observationCount'],
                         'lastObservationTime' => $lastTimeString
                     ];
                 } else {
-                    $observationList[$specieName]['provinces'][] = $province;
+                    $observationList[$specieName]['provinces'] .= ', ' . Province::getKey($province);
                     $observationList[$specieName]['count'] += sizeof($specieObservations);
 
                     // replace time of last observation, if a more recent observation is encountered

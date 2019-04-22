@@ -13,6 +13,9 @@
                     </span>
                     <span class="observation-details">
                         <span class="detail">
+                            <q-icon name="fab fa-sistrix" /> {{ observation.provinces }}
+                        </span>
+                        <span class="detail">
                             <q-icon name="far fa-comment" /> {{ observation.count }} {{ $tc('observation', observation.count) }}
                         </span>
                         <span class="detail">
