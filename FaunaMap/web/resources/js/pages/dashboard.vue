@@ -1,7 +1,7 @@
 <template>
     <div id="page-dashboard">
         <q-list id="observation-list">
-            <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`">
+            <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="{ name: 'map' }">
                 <q-item-section avatar>
                     <q-avatar>
                         <img :src="observation.specieImage">

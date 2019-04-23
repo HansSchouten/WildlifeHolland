@@ -5,6 +5,8 @@ const PasswordReset = () => import('~/pages/auth/password/reset').then(m => m.de
 const NotFound = () => import('~/pages/errors/404').then(m => m.default || m)
 
 const Dashboard = () => import('~/pages/dashboard').then(m => m.default || m)
+const Map = () => import('~/pages/map/map').then(m => m.default || m)
+
 const Settings = () => import('~/pages/settings/index').then(m => m.default || m)
 const SettingsProfile = () => import('~/pages/settings/profile/index').then(m => m.default || m)
 
@@ -15,6 +17,7 @@ export default [
     { path: '/password/reset/:token', name: 'password.reset', component: PasswordReset },
 
     { path: '/dashboard', name: 'dashboard', component: Dashboard },
+    { path: '/map', name: 'map', component: Map },
     {
         path: '/settings',
         component: Settings,
