@@ -53,7 +53,8 @@ class Observations
                         'provinces' => Province::getKey($province),
                         'specieImage' => $specie['imageUrl'],
                         'specieAbundance' => $specie['observationCount'],
-                        'lastObservationTime' => $lastTimeString
+                        'lastObservationTime' => $lastTimeString,
+                        'date' => $date
                     ];
                 } else {
                     $observationList[$specieName]['provinces'] .= ', ' . Province::getKey($province);

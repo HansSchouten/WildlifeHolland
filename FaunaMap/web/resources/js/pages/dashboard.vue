@@ -1,7 +1,7 @@
 <template>
     <div id="page-dashboard">
         <q-list id="observation-list">
-            <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="{ name: 'map' }">
+            <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="getMapUrl(observation)">
                 <q-item-section avatar>
                     <q-avatar>
                         <img :src="observation.specieImage">
@@ -46,6 +46,15 @@ export default {
         async fetchObservations () {
             // fetch observations
             await this.$store.dispatch('observations/fetchObservations')
+        },
+        getMapUrl(specieObservation) {
+            return {
+                name: 'map',
+                query: {
+                    specie: specieObservation.name,
+                    date: specieObservation.date,
+                }
+            }
         }
     },
 
