@@ -20,9 +20,11 @@ export const mutations = {
 
 // actions
 export const actions = {
-    async fetchObservations ({ commit }) {
+    async fetchObservations ({ commit }, payload) {
         try {
-            const { data } = await axios.get('/api/observations')
+            const { data } = await axios.get('/api/observations', {
+                params: payload
+            })
 
             commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data })
         } catch (e) {

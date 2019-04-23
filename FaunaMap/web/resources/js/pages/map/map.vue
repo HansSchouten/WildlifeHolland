@@ -19,8 +19,13 @@ export default {
 
     methods: {
         async fetchObservations () {
+            // get observation filter from query parameters
+            let payload = {
+                specie: $route.query.specie,
+                date: $route.query.date
+            }
             // fetch observations
-            await this.$store.dispatch('observations/fetchObservations')
+            await this.$store.dispatch('observations/fetchObservations', payload)
         }
     },
 
