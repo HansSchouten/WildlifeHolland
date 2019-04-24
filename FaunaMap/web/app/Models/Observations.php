@@ -3,9 +3,78 @@
 namespace App\Models;
 
 use App\Enums\Province;
+use Elasticquent\ElasticquentTrait;
+use Illuminate\Database\Eloquent\Model;
 
-class Observations
+class Observations extends Model
 {
+    use ElasticquentTrait;
+
+    /**
+     * The ElasticSearch settings.
+     *
+     * @var array
+     */
+    protected $indexSettings = [
+        'analysis' => [
+            'char_filter' => [
+                'replace' => [
+                    'type' => 'mapping',
+                    'mappings' => [
+                        '&=> and '
+                    ],
+                ],
+            ],
+            'filter' => [
+                'word_delimiter' => [
+                    'type' => 'word_delimiter',
+                    'split_on_numerics' => false,
+                    'split_on_case_change' => true,
+                    'generate_word_parts' => true,
+                    'generate_number_parts' => true,
+                    'catenate_all' => true,
+                    'preserve_original' => true,
+                    'catenate_numbers' => true,
+                ]
+            ],
+            'analyzer' => [
+                'default' => [
+                    'type' => 'custom',
+                    'char_filter' => [
+                        'html_strip',
+                        'replace',
+                    ],
+                    'tokenizer' => 'whitespace',
+                    'filter' => [
+                        'lowercase',
+                        'word_delimiter',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    /**
+     * ElasticSearch mapping.
+     */
+    protected $mappingProperties = [
+        'name' => [
+            'type' => 'string'
+        ],
+        'count' => [
+            'type' => 'integer'
+        ],
+        'provinces' => [
+            'type' => 'string'
+        ],
+        'specie' => [
+            'type' => 'string'
+        ],
+        'timestamp' => [
+            'type' => 'date',
+            'format' => 'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd'
+        ],
+    ];
 
     /**
      * Load a filtered collection of Observations.
@@ -13,7 +82,7 @@ class Observations
      * @param array $filters
      * @return array
      */
-    public static function load(array $filters = [])
+    public static function loadFromJson(array $filters = [])
     {
         $date = $filters['date'];
 

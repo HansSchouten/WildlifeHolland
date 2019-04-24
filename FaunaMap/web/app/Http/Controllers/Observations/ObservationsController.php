@@ -20,7 +20,7 @@ class ObservationsController extends Controller
         if (! isset($filters['date'])) {
             $filters['date'] = date('Y-m-d');
         }
-        $data = Observations::load($filters);
+        $data = Observations::loadFromJson($filters);
 
         return response()->json($data);
     }

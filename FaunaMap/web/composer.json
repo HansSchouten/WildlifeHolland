@@ -7,6 +7,7 @@
     "require": {
         "php": "^7.1.3",
         "bensampo/laravel-enum": "^1.17",
+        "elasticquent/elasticquent": "^1.0",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.0",
