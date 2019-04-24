@@ -58,8 +58,8 @@ class Observations extends Model
      * ElasticSearch mapping.
      */
     protected $mappingProperties = [
-        'name' => [
-            'type' => 'string'
+        'id' => [
+            'type' => 'key'
         ],
         'count' => [
             'type' => 'integer'
@@ -67,14 +67,78 @@ class Observations extends Model
         'provinces' => [
             'type' => 'string'
         ],
-        'specie' => [
+        'specieName' => [
             'type' => 'string'
+        ],
+        'specieAbundance' => [
+            'type' => 'integer'
         ],
         'timestamp' => [
             'type' => 'date',
             'format' => 'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd'
         ],
     ];
+
+    /**
+     * Return a collection of observations based on the observation data stored in JSON files.
+     */
+    public static function getObservationsFromJson()
+    {
+        // load species data
+        $speciesFile = self::getDataPath('species.json');
+        $jsonSpecies = file_get_contents($speciesFile);
+        $species = json_decode($jsonSpecies, true);
+
+        // get all json observation files
+        $dataFolder = self::getDataPath();
+        $observationsFiles = glob($dataFolder . '/observations-*');
+
+        $observations = [];
+        foreach ($observationsFiles as $observationsFile) {
+            $jsonObservations = file_get_contents($observationsFile);
+            $structuredObservations = json_decode($jsonObservations,true);
+            $flattenedSpecieObservations = self::flattenObservations($species, $structuredObservations);
+            $observations = array_merge($observations, $flattenedSpecieObservations);
+        }
+
+        return collect($observations);
+    }
+
+    /**
+     * Flatten a multidimensional array of observations into an array containing all data per observation.
+     *
+     * @param array $species
+     * @param array $structuredObservations
+     * @return array
+     */
+    protected static function flattenObservations(array $species, array $structuredObservations)
+    {
+        $observations = [];
+
+        foreach ($structuredObservations as $specieGroup => $observationsPerProvince) {
+            foreach ($observationsPerProvince as $province => $observationsPerSpecie) {
+                foreach ($observationsPerSpecie as $specieName => $specieObservations) {
+                    // ignore observations of which no specie data is present
+                    if (! isset($species[$specieName])) {
+                        continue;
+                    }
+                    $specie = $species[$specieName];
+
+                    foreach ($specieObservations as $observationId => $observation) {
+                        $observations[] = [
+                            'id' => $observationId,
+                            'province' => Province::getKey($province),
+                            'specieName' => $specieName,
+                            'specieAbundance' => $specie['observationCount'],
+                            'timestamp' => $observation['time'],
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $observations;
+    }
 
     /**
      * Load a filtered collection of Observations.
@@ -154,7 +218,7 @@ class Observations extends Model
      * @param string $fileName
      * @return bool|string
      */
-    public static function getDataPath(string $fileName)
+    public static function getDataPath(string $fileName = '')
     {
         return realpath(base_path() . '/' . env('FAUNAMAP_DATA') . '/' . $fileName);
     }
