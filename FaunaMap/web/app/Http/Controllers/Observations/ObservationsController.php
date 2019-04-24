@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Observations;
 
-use App\Models\Observations;
+use App\Models\Observation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -20,7 +20,7 @@ class ObservationsController extends Controller
         if (! isset($filters['date'])) {
             $filters['date'] = date('Y-m-d');
         }
-        $data = Observations::loadFromJson($filters);
+        $data = Observation::loadFromJson($filters);
 
         return response()->json($data);
     }

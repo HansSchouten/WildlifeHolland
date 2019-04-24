@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Observations;
+use App\Models\Observation;
 use Illuminate\Console\Command;
 
 class BuildObservationsIndex extends Command
@@ -36,6 +36,7 @@ class BuildObservationsIndex extends Command
      */
     public function handle()
     {
-        $observations = Observations::getObservationsFromJson();
+        $observations = Observation::getObservationsFromJson();
+        $observations->addToIndex();
     }
 }

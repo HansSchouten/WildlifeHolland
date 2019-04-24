@@ -6,7 +6,7 @@ use App\Enums\Province;
 use Elasticquent\ElasticquentTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class Observations extends Model
+class Observation extends Model
 {
     use ElasticquentTrait;
 
@@ -93,28 +93,27 @@ class Observations extends Model
         $dataFolder = self::getDataPath();
         $observationsFiles = glob($dataFolder . '/observations-*');
 
-        $observations = [];
+        $observations = (new Observation)->newCollection();
         foreach ($observationsFiles as $observationsFile) {
+            $date = str_replace('observations-', '', basename($observationsFile, '.json'));
             $jsonObservations = file_get_contents($observationsFile);
             $structuredObservations = json_decode($jsonObservations,true);
-            $flattenedSpecieObservations = self::flattenObservations($species, $structuredObservations);
-            $observations = array_merge($observations, $flattenedSpecieObservations);
+            self::addFlattenedObservations($observations, $species, $structuredObservations, $date);
         }
 
-        return collect($observations);
+        return $observations;
     }
 
     /**
      * Flatten a multidimensional array of observations into an array containing all data per observation.
      *
+     * @param $observations
      * @param array $species
      * @param array $structuredObservations
-     * @return array
+     * @param string $date
      */
-    protected static function flattenObservations(array $species, array $structuredObservations)
+    protected static function addFlattenedObservations(&$observations, array $species, array $structuredObservations, string $date)
     {
-        $observations = [];
-
         foreach ($structuredObservations as $specieGroup => $observationsPerProvince) {
             foreach ($observationsPerProvince as $province => $observationsPerSpecie) {
                 foreach ($observationsPerSpecie as $specieName => $specieObservations) {
@@ -125,19 +124,19 @@ class Observations extends Model
                     $specie = $species[$specieName];
 
                     foreach ($specieObservations as $observationId => $observation) {
-                        $observations[] = [
-                            'id' => $observationId,
-                            'province' => Province::getKey($province),
-                            'specieName' => $specieName,
-                            'specieAbundance' => $specie['observationCount'],
-                            'timestamp' => $observation['time'],
-                        ];
+                        $obsInstance = new Observation;
+                        $obsInstance->id = $observationId;
+                        $obsInstance->province = Province::getKey($province);
+                        $obsInstance->specieGroup = $specieGroup;
+                        $obsInstance->specieName = $specieName;
+                        $obsInstance->specieAbundance = $specie['observationCount'];
+                        $obsInstance->timestamp = $date . ' ' . $observation['time'];
+
+                        $observations->push($obsInstance);
                     }
                 }
             }
         }
-
-        return $observations;
     }
 
     /**
