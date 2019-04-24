@@ -8,14 +8,15 @@ class Observations
 {
 
     /**
-     * Get the (filtered) collection of Observations from the given date.
+     * Load a filtered collection of Observations.
      *
-     * @param string $date
      * @param array $filters
      * @return array
      */
-    public static function loadFromDate(string $date, array $filters = [])
+    public static function load(array $filters = [])
     {
+        $date = $filters['date'];
+
         $observationsFile = self::getDataPath('observations-' . date('Y-m-d', strtotime($date)) . '.json');
         $jsonObservations = file_get_contents($observationsFile);
         $observations = json_decode($jsonObservations,true)[1];

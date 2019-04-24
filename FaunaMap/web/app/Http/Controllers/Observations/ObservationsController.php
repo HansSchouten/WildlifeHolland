@@ -16,7 +16,11 @@ class ObservationsController extends Controller
      */
     public function index(Request $request)
     {
-        $data = Observations::loadFromDate(date('Y-m-d'));
+        $filters = $request->all();
+        if (! isset($filters['date'])) {
+            $filters['date'] = date('Y-m-d');
+        }
+        $data = Observations::load($filters);
 
         return response()->json($data);
     }

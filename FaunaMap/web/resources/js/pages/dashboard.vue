@@ -18,7 +18,7 @@
                         <span class="detail">
                             <q-icon name="far fa-comment" /> {{ observation.count }} {{ $tc('observation', observation.count) }}
                         </span>
-                        <span class="detail">
+                        <span class="detail" v-if="observation.lastObservationTime != null">
                             <q-icon name="far fa-clock" /> {{ observation.lastObservationTime }}
                         </span>
                     </span>
