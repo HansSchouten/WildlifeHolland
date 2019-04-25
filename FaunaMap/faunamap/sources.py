@@ -21,6 +21,8 @@ class ObsScraper:
 		self.speciesGroups = config.get('ObsMonitor', 'SpeciesGroups').split(',')
 		self.provinces = config.get('ObsMonitor', 'Provinces').split(',')
 		self.minRarity = config.get('ObsMonitor', 'MinRarity')
+		self.minRequestDelay = int(config.get('ObsMonitor', 'MinRequestDelay'))
+		self.maxRequestDelay = int(config.get('ObsMonitor', 'MaxRequestDelay'))
 		self.logger = Logger(config)
 
 	def getDoc(self, url):
@@ -31,7 +33,7 @@ class ObsScraper:
 		print(url)
 
 		# relax of the hard work and reduce remote server workload
-		time.sleep(1 + random.uniform(0, 2))
+		time.sleep(self.minRequestDelay + random.uniform(0, self.maxRequestDelay - self.minRequestDelay))
 
 		# update sync status timestamp
 		self.logger.updateStatus()
