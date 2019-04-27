@@ -5,6 +5,19 @@ $config = [
     'locales' => config('app.locales')
 ];
 
+$quasarConfig = [
+  'brand' => [
+    'primary' => '#027BE3',
+    'secondary' => '#26A69A',
+    'accent' => '#9C27B0',
+
+    'positive' => '#21BA45',
+    'negative' => '#C10015',
+    'info' => '#31CCEC',
+    'warning' => '#F2C037'
+  ]
+];
+
 $polyfills = [
     'Promise',
     'Object.assign',
@@ -32,7 +45,7 @@ $polyfills = [
   <div id="app"></div>
 
   {{-- Global configuration object --}}
-  <script>window.config = @json($config);</script>
+  <script>window.config = @json($config); window.quasarConfig = @json($quasarConfig);</script>
 
   {{-- Polyfill JS features via polyfill.io --}}
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features={{ implode(',', $polyfills) }}"></script>
