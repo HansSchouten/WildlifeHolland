@@ -11,6 +11,16 @@ class Observation extends Model
     use ElasticquentTrait;
 
     /**
+     * Return the ElasticSearch index name of this model.
+     *
+     * @return string
+     */
+    function getIndexName()
+    {
+        return env('ELASTIC_INDEX') . '_observations';
+    }
+
+    /**
      * The ElasticSearch settings.
      *
      * @var array
@@ -59,16 +69,16 @@ class Observation extends Model
      */
     protected $mappingProperties = [
         'id' => [
-            'type' => 'key'
+            'type' => 'keyword'
         ],
         'count' => [
             'type' => 'integer'
         ],
         'provinces' => [
-            'type' => 'string'
+            'type' => 'text'
         ],
         'specieName' => [
-            'type' => 'string'
+            'type' => 'text'
         ],
         'specieAbundance' => [
             'type' => 'integer'
@@ -78,6 +88,7 @@ class Observation extends Model
             'format' => 'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd'
         ],
     ];
+
 
     /**
      * Return a collection of observations based on the observation data stored in JSON files.
