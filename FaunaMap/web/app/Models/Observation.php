@@ -83,6 +83,9 @@ class Observation extends Model
         'specieAbundance' => [
             'type' => 'integer'
         ],
+        'date' => [
+            'type' => 'string',
+        ],
         'timestamp' => [
             'type' => 'date',
             'format' => 'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd'
@@ -141,6 +144,7 @@ class Observation extends Model
                         $obsInstance->specieGroup = $specieGroup;
                         $obsInstance->specieName = $specieName;
                         $obsInstance->specieAbundance = $specie['observationCount'];
+                        $obsInstance->date = $date;
                         $obsInstance->timestamp = $date . ' ' . $observation['time'];
 
                         $observations->push($obsInstance);
@@ -149,6 +153,9 @@ class Observation extends Model
             }
         }
     }
+
+
+
 
     /**
      * Load a filtered collection of Observations.
