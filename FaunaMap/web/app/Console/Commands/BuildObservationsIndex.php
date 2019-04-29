@@ -37,6 +37,11 @@ class BuildObservationsIndex extends Command
     public function handle()
     {
         $observations = Observation::getObservationsFromJson();
+
+        Observation::deleteIndex();
+        Observation::createIndex();
+        Observation::putMapping();
+
         $observations->addToIndex();
     }
 }

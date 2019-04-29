@@ -84,11 +84,11 @@ class Observation extends Model
             'type' => 'integer'
         ],
         'date' => [
-            'type' => 'string',
+            'type' => 'keyword',
         ],
         'timestamp' => [
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd'
+            'format' => 'yyyy-MM-dd HH:mm||yyyy-MM-dd'
         ],
     ];
 

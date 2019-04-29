@@ -30,7 +30,6 @@ class ObservationsController extends Controller
             ],
             'size' => 1000
         ]);
-        //$data = Observation::loadFromJson(['date' => $today]);
 
         return response()->json($data);
     }
