@@ -16,20 +16,10 @@ class ObservationsController extends Controller
      */
     public function index(Request $request)
     {
-        $today = date('Y-m-d');
-        $data = Observation::complexSearch([
-            'body' => [
-                'query' => [
-                    'match' => [
-                        'date' => $today
-                    ]
-                ],
-                'sort' => [
-                    ['specieAbundance' => 'asc']
-                ]
-            ],
-            'size' => 1000
-        ]);
+        $filters = [
+            'date' => date('Y-m-d')
+        ];
+        $data = (new Observation)->getSpecieAggregatedObservations($filters);
 
         return response()->json($data);
     }

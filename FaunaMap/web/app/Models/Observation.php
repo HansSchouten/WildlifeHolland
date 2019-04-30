@@ -74,7 +74,7 @@ class Observation extends Model
         'count' => [
             'type' => 'integer'
         ],
-        'provinces' => [
+        'province' => [
             'type' => 'text'
         ],
         'specieName' => [
@@ -155,79 +155,78 @@ class Observation extends Model
     }
 
 
-
-
     /**
-     * Load a filtered collection of Observations.
+     * Return a collection of observations aggregated per specie.
      *
      * @param array $filters
      * @return array
      */
-    public static function loadFromJson(array $filters = [])
+    public function getSpecieAggregatedObservations(array $filters = [])
     {
         $date = $filters['date'];
 
-        $observationsFile = self::getDataPath('observations-' . date('Y-m-d', strtotime($date)) . '.json');
-        $jsonObservations = file_get_contents($observationsFile);
-        $observations = json_decode($jsonObservations,true)[1];
+        // get all observations that satisfy the given filters
+        $observations = Observation::complexSearch([
+            'body' => [
+                'query' => [
+                    'match' => [
+                        'date' => $date
+                    ]
+                ],
+                'sort' => [
+                    ['specieAbundance' => 'asc']
+                ]
+            ],
+            'size' => 1000
+        ]);
 
+        // get all observations grouped by specie
+        $perSpecie = [];
+        foreach ($observations as $observation) {
+            if (! isset($perSpecie[$observation['specieName']])) {
+                $perSpecie[$observation['specieName']] = [];
+            }
+            $perSpecie[$observation['specieName']][] = $observation;
+        }
+
+        // load species data
         $speciesFile = self::getDataPath('species.json');
         $jsonSpecies = file_get_contents($speciesFile);
         $species = json_decode($jsonSpecies, true);
 
-        // map observations per province to a general list of observed species
-        $observationList = [];
-        foreach ($observations as $province => $provinceObservations) {
-            foreach ($provinceObservations as $specieName => $specieObservations) {
-                // ignore observations of which no specie data is present
-                if (! isset($species[$specieName])) {
-                    continue;
-                }
+        // aggregate observations per specie
+        $specieAggregated = [];
+        foreach ($perSpecie as $specieName => $observations) {
+            $specie = $species[$specieName];
 
-                // get time of last the observation
-                $lastTime = 0;
-                $lastTimeString = null;
-                foreach ($specieObservations as $observationId => $observation) {
-                    $observationTime = strtotime($observation['time']);
-                    if ($observationTime > $lastTime) {
-                        $lastTime = $observationTime;
-                        $lastTimeString = $observation['time'];
-                    }
-                }
-
-                // add to observationList or update observation information based on province data
-                $specie = $species[$specieName];
-                if (! isset($observationList[$specieName])) {
-                    $observationList[$specieName] = [
-                        'name' => $specieName,
-                        'count' => sizeof($specieObservations),
-                        'provinces' => Province::getKey($province),
-                        'specieImage' => $specie['imageUrl'],
-                        'specieAbundance' => $specie['observationCount'],
-                        'lastObservationTime' => $lastTimeString,
-                        'date' => $date
-                    ];
-                } else {
-                    $observationList[$specieName]['provinces'] .= ', ' . Province::getKey($province);
-                    $observationList[$specieName]['count'] += sizeof($specieObservations);
-
-                    // replace time of last observation, if a more recent observation is encountered
-                    if ($observationList[$specieName]['lastObservationTime'] === null ||
-                        $lastTime > strtotime($observationList[$specieName]['lastObservationTime'])) {
-                        $observationList[$specieName]['lastObservationTime'] = $lastTimeString;
-                    }
+            // get aggregated statistics of all specie observations
+            $provinces = [];
+            $lastTime = 0;
+            $lastTimeString = null;
+            foreach ($observations as $observation) {
+                $provinces[$observation->province] = true;
+                $observationTime = strtotime($observation['timestamp']);
+                if ($observationTime > $lastTime) {
+                    $lastTime = $observationTime;
+                    $lastTimeString = $observation['timestamp'];
                 }
             }
+            ksort($provinces);
+            $provinces = implode(', ', array_keys($provinces));
+
+            $specieAggregated[$specieName] = [
+                'name' => $specieName,
+                'count' => sizeof($observations),
+                'provinces' => $provinces,
+                'specieImage' => $specie['imageUrl'],
+                'specieAbundance' => $specie['observationCount'],
+                'lastObservationTime' => date("H:i", strtotime($lastTimeString)),
+                'date' => $date
+            ];
         }
 
-        // sort observations
-        usort($observationList, function($a, $b) {
-            return $a['specieAbundance'] - $b['specieAbundance'];
-        });
-
-        return $observationList;
+        return $specieAggregated;
     }
-
 
     /**
      * Return the full data file path with the given filename.
