@@ -26,7 +26,7 @@ export const actions = {
                 params: payload
             })
 
-            commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data })
+            commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data.data })
         } catch (e) {
             console.log(e)
         }
