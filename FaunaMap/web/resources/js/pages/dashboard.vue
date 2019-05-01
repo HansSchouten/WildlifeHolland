@@ -47,12 +47,12 @@ export default {
             // fetch observations
             await this.$store.dispatch('observations/fetchObservations')
         },
-        getMapUrl(specieObservation) {
+        getMapUrl (specieObservation) {
             return {
                 name: 'map',
                 query: {
-                    specie: specieObservation.name,
-                    date: specieObservation.date,
+                    specie: specieObservation.name.toLowerCase(),
+                    date: specieObservation.date
                 }
             }
         }

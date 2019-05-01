@@ -76,10 +76,10 @@ class Observation extends Model
             'type' => 'integer'
         ],
         'province' => [
-            'type' => 'text'
+            'type' => 'keyword'
         ],
         'specieName' => [
-            'type' => 'text'
+            'type' => 'keyword'
         ],
         'specieAbundance' => [
             'type' => 'integer'
@@ -166,15 +166,14 @@ class Observation extends Model
         $filters = [];
         foreach ($parameters['filters'] as $key => $value) {
             if (! $value) continue;
-            $filters[] = ['term' => [$key => $value]];
+            $filters[] = ['match' => [$key => $value]];
         }
 
-        // get all observations that satisfy the given filters
-        return self::complexSearch([
+        $query = [
             'body' => [
                 'query' => [
                     'bool' => [
-                        'filter' => $filters
+                        'must' => $filters
                     ]
                 ],
                 'sort' => [
@@ -182,7 +181,8 @@ class Observation extends Model
                 ]
             ],
             'size' => 1000
-        ]);
+        ];
+        return self::complexSearch($query);
     }
 
 }
