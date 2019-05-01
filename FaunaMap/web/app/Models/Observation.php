@@ -156,21 +156,25 @@ class Observation extends Model
     }
 
     /**
-     * Return a collection of observations that satisfy an array of filters.
+     * Return a collection of observations based on a passed array of search parameters.
      *
-     * @param array $filters
+     * @param array $parameters
      * @return ElasticquentResultCollection
      */
-    public static function search(array $filters = [])
+    public static function search(array $parameters = [])
     {
-        $date = $filters['date'];
+        $filters = [];
+        foreach ($parameters['filters'] as $key => $value) {
+            if (! $value) continue;
+            $filters[] = ['term' => [$key => $value]];
+        }
 
         // get all observations that satisfy the given filters
         return self::complexSearch([
             'body' => [
                 'query' => [
-                    'match' => [
-                        'date' => $date
+                    'bool' => [
+                        'filter' => $filters
                     ]
                 ],
                 'sort' => [

@@ -18,10 +18,13 @@ class ObservationsController extends Controller
      */
     public function index(Request $request)
     {
-        $filters = [
-            'date' => date('Y-m-d')
+        $parameters = [
+            'filters' => [
+                'date' => $request->date ?? date('Y-m-d'),
+                'specieName' => $request->specie ?? null
+            ]
         ];
-        $observations = Observation::search($filters);
+        $observations = Observation::search($parameters);
 
         return new SpecieObservationsCollection($observations);
     }
