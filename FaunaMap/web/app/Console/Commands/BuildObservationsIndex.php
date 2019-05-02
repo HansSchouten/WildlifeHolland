@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Observation;
 use Illuminate\Console\Command;
+use Exception;
 
 class BuildObservationsIndex extends Command
 {
@@ -38,7 +39,9 @@ class BuildObservationsIndex extends Command
     {
         $observations = Observation::getObservationsFromJson();
 
-        Observation::deleteIndex();
+        try {
+            Observation::deleteIndex();
+        } catch (Exception $e) {}
         Observation::createIndex();
         Observation::putMapping();
 
