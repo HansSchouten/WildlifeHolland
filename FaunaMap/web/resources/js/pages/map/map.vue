@@ -1,6 +1,6 @@
 <template>
     <q-page id="page-map">
-        <l-map ref="map" :zoom="zoom" :center="center" :bounds="bounds" class="absolute">
+        <l-map ref="map" :zoom="zoom" class="absolute">
             <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
             <l-marker
                 v-for="marker in markers"
@@ -15,6 +15,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import L from 'leaflet'
 import { LMap, LTileLayer, LMarker, LTooltip, LPopup } from 'vue2-leaflet'
 
 export default {
@@ -33,27 +34,30 @@ export default {
 
     data () {
         return {
-            zoom: 13,
-            center: [0, 0],
+            map: null,
+            zoom: null,
             url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
             attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
-            markers: [],
-            bounds: null
+            markers: []
         }
     },
 
     mounted () {
         this.fetchObservations()
+        this.$nextTick(() => {
+            this.map = this.$refs.map
+            this.map.mapObject.on('moveend', () => {
+                this.zoom = this.map.mapObject.getZoom()
+            })
+        })
     },
 
     methods: {
         async fetchObservations () {
-            // get observation filter from query parameters
             let payload = {
                 specie: this.$route.query.specie,
                 date: this.$route.query.date
             }
-            // fetch observations
             await this.$store.dispatch('observations/fetchObservations', payload)
             this.updateMarkers()
         },
@@ -66,16 +70,16 @@ export default {
                     tooltip: ''
                 })
             })
-            console.log(markers)
             this.markers = markers
             this.updateBounds()
         },
         updateBounds () {
-            this.bounds = window.L.latLngBounds([this.markers.map(o => o.position)])
-            this.$refs.map.fitBounds([
-                [51.9902, 4.5696],
-                [51.9877, 4.5646]
-            ])
+            let b = L.latLngBounds([this.markers.map(o => o.position)]).pad(0.1)
+            this.map.fitBounds([
+                [b.getNorth(), b.getEast()],
+                [b.getSouth(), b.getWest()]
+            ], true)
+            this.zoom = Math.min(this.zoom, 13)
         }
     }
 }
