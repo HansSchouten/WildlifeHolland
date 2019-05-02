@@ -1,5 +1,5 @@
 <template>
-    <transition name="page" mode="out-in">
+    <transition name="page">
         <slot>
             <router-view/>
         </slot>

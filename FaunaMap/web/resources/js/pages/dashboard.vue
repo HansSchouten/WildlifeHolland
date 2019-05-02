@@ -39,13 +39,16 @@ export default {
     },
 
     computed: mapGetters({
-        observations: 'observations/observations'
+        observations: 'observations/specieObservations'
     }),
+
+    mounted () {
+        this.fetchObservations()
+    },
 
     methods: {
         async fetchObservations () {
-            // fetch observations
-            await this.$store.dispatch('observations/fetchObservations')
+            await this.$store.dispatch('observations/fetchSpecieObservations')
         },
         getMapUrl (specieObservation) {
             return {
@@ -56,10 +59,6 @@ export default {
                 }
             }
         }
-    },
-
-    mounted () {
-        this.fetchObservations()
     }
 }
 </script>

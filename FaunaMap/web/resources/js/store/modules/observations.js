@@ -3,30 +3,46 @@ import * as types from '../mutation-types'
 
 // state
 export const state = {
-    observations: []
+    specieObservations: [],
+    mapObservations: []
 }
 
 // getters
 export const getters = {
-    observations: state => state.observations
+    specieObservations: state => state.specieObservations,
+    mapObservations: state => state.mapObservations
 }
 
 // mutations
 export const mutations = {
-    [types.FETCH_OBSERVATIONS_SUCCESS] (state, { observations }) {
-        state.observations = observations
+    [types.FETCH_SPECIE_OBSERVATIONS_SUCCESS] (state, { observations }) {
+        state.specieObservations = observations
+    },
+    [types.FETCH_MAP_OBSERVATIONS_SUCCESS] (state, { observations }) {
+        state.mapObservations = observations
     }
 }
 
 // actions
 export const actions = {
-    async fetchObservations ({ commit }, payload) {
+    async fetchSpecieObservations ({ commit }, payload) {
         try {
             const { data } = await axios.get('/api/observations', {
                 params: payload
             })
 
-            commit(types.FETCH_OBSERVATIONS_SUCCESS, { observations: data.data })
+            commit(types.FETCH_SPECIE_OBSERVATIONS_SUCCESS, { observations: data.data })
+        } catch (e) {
+            console.log(e)
+        }
+    },
+    async fetchMapObservations ({ commit }, payload) {
+        try {
+            const { data } = await axios.get('/api/observations', {
+                params: payload
+            })
+
+            commit(types.FETCH_MAP_OBSERVATIONS_SUCCESS, { observations: data.data })
         } catch (e) {
             console.log(e)
         }

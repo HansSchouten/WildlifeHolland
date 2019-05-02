@@ -28,7 +28,7 @@ export default {
 
     computed: {
         ...mapGetters({
-            observations: 'observations/observations'
+            observations: 'observations/mapObservations'
         })
     },
 
@@ -43,8 +43,8 @@ export default {
     },
 
     mounted () {
-        this.fetchObservations()
         this.$nextTick(() => {
+            this.fetchObservations()
             this.map = this.$refs.map
             this.map.mapObject.on('moveend', () => {
                 this.zoom = this.map.mapObject.getZoom()
@@ -58,7 +58,7 @@ export default {
                 specie: this.$route.query.specie,
                 date: this.$route.query.date
             }
-            await this.$store.dispatch('observations/fetchObservations', payload)
+            await this.$store.dispatch('observations/fetchMapObservations', payload)
             this.updateMarkers()
         },
         updateMarkers () {
