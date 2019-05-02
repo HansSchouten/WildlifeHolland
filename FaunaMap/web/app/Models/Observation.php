@@ -174,6 +174,7 @@ class Observation extends Model
         }
 
         $query = [
+            'index' => (new self())->getIndexName(),
             'body' => [
                 'query' => [
                     'bool' => [
