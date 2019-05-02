@@ -16,6 +16,11 @@ const routeMiddleware = resolveMiddleware(
     require.context('~/middleware', false, /.*\.js$/)
 )
 
+// disable browser scrollRestoration
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual'
+}
+
 const router = createRouter()
 
 sync(store, router)

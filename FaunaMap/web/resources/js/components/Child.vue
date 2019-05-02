@@ -1,9 +1,9 @@
 <template>
-    <transition name="page">
+    <div name="page">
         <slot>
             <router-view/>
         </slot>
-    </transition>
+    </div>
 </template>
 
 <script>
