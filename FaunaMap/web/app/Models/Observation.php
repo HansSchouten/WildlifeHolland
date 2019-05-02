@@ -100,12 +100,12 @@ class Observation extends Model
     public static function getObservationsFromJson()
     {
         // load species data
-        $speciesFile = self::getDataPath('species.json');
+        $speciesFile = getDataPath('species.json');
         $jsonSpecies = file_get_contents($speciesFile);
         $species = json_decode($jsonSpecies, true);
 
         // get all json observation files
-        $dataFolder = self::getDataPath();
+        $dataFolder = getDataPath();
         $observationsFiles = glob($dataFolder . '/observations-*');
 
         $observations = (new Observation)->newCollection();
