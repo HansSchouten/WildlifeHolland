@@ -18,11 +18,13 @@ class ObservationsCollection extends ResourceCollection
         $observations = [];
         foreach ($this->collection as $observation) {
             $observationArray = $observation->toArray();
+
             $latLong = explode(',', $observationArray['location']);
-            $observations[] = [
-                'lat' => $latLong[0],
-                'long' => $latLong[1]
-            ] + $observationArray;
+            $observationArray['lat'] = $latLong[0];
+            $observationArray['long'] = $latLong[1];
+            $observationArray['timestamp'] = date('d-m-Y H:i', strtotime($observationArray['timestamp']));
+
+            $observations[] = $observationArray;
         }
         return $observations;
     }
