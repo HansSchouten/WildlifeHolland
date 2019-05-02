@@ -15,6 +15,15 @@ class ObservationsCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return $this->collection->toArray();
+        $observations = [];
+        foreach ($this->collection as $observation) {
+            $observationArray = $observation->toArray();
+            $latLong = explode(',', $observationArray['location']);
+            $observations[] = [
+                'lat' => $latLong[0],
+                'long' => $latLong[1]
+            ] + $observationArray;
+        }
+        return $observations;
     }
 }

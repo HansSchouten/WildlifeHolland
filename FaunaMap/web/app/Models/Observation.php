@@ -78,6 +78,9 @@ class Observation extends Model
         'province' => [
             'type' => 'keyword'
         ],
+        'location' => [
+            'type' => 'geo_point'
+        ],
         'specieName' => [
             'type' => 'keyword'
         ],
@@ -142,6 +145,7 @@ class Observation extends Model
                         $obsInstance = new Observation;
                         $obsInstance->id = $observationId;
                         $obsInstance->province = Province::getKey($province);
+                        $obsInstance->location = $observation['lat'] . ',' . $observation['long'];
                         $obsInstance->specieGroup = $specieGroup;
                         $obsInstance->specieName = $specieName;
                         $obsInstance->specieAbundance = $specie['observationCount'];

@@ -1,19 +1,25 @@
 <template>
     <q-page id="page-map">
-        <l-map :zoom="zoom" :center="center" class="absolute">
+        <l-map ref="map" :zoom="zoom" :center="center" :bounds="bounds" class="absolute">
             <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-            <l-marker :lat-lng="marker"></l-marker>
+            <l-marker
+                v-for="marker in markers"
+                :key="marker.id"
+                :lat-lng="marker.position">
+                <l-popup :content="marker.tooltip" />
+                <l-tooltip :content="marker.tooltip" />
+            </l-marker>
         </l-map>
     </q-page>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LTooltip, LPopup } from 'vue2-leaflet'
 
 export default {
     middleware: 'auth',
-    components: { LMap, LTileLayer, LMarker },
+    components: { LMap, LTileLayer, LMarker, LTooltip, LPopup },
 
     metaInfo () {
         return { title: this.$t('map') }
@@ -22,18 +28,17 @@ export default {
     computed: {
         ...mapGetters({
             observations: 'observations/observations'
-        }),
-        observationMarkers: () => {
-            return []
-        }
+        })
     },
 
     data () {
         return {
             zoom: 13,
+            center: [0, 0],
             url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
             attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
-            markers: this.observationMarkers
+            markers: [],
+            bounds: null
         }
     },
 
@@ -50,6 +55,27 @@ export default {
             }
             // fetch observations
             await this.$store.dispatch('observations/fetchObservations', payload)
+            this.updateMarkers()
+        },
+        updateMarkers () {
+            let markers = []
+            this.observations.forEach((observation) => {
+                markers.push({
+                    id: observation.id,
+                    position: { lat: observation.lat, lng: observation.long },
+                    tooltip: ''
+                })
+            })
+            console.log(markers)
+            this.markers = markers
+            this.updateBounds()
+        },
+        updateBounds () {
+            this.bounds = window.L.latLngBounds([this.markers.map(o => o.position)])
+            this.$refs.map.fitBounds([
+                [51.9902, 4.5696],
+                [51.9877, 4.5646]
+            ])
         }
     }
 }
