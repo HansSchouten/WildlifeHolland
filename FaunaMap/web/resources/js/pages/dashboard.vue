@@ -51,7 +51,7 @@ export default {
             return {
                 name: 'map',
                 query: {
-                    specie: specieObservation.name.toLowerCase(),
+                    specie: specieObservation.name,
                     date: specieObservation.date
                 }
             }
