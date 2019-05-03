@@ -4,13 +4,14 @@
             ref="map"
             :zoom="zoom"
             :options="mapOptions"
-            class="absolute">
+            :class="`absolute ` + markerClass()">
             <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
 
             <l-marker
                 v-for="marker in markers"
                 :key="marker.id"
                 :lat-lng="marker.position"
+                :icon="marker.icon"
                 @click="markerClicked(marker)">
 
                 <l-tooltip
@@ -55,7 +56,7 @@ export default {
             },
             tooltipOptions: {
                 direction: 'top',
-                offset: [0, -15]
+                offset: this.tooltipOffset()
             },
             url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
             attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
@@ -88,6 +89,7 @@ export default {
                 markers.push({
                     id: observation.id,
                     position: { lat: observation.lat, lng: observation.long },
+                    icon: this.getIcon(observation),
                     tooltip: observation.specieName + '<br>' + observation.timestamp,
                     popup: observation.specieName + '<br>' +
                         observation.timestamp +
@@ -108,6 +110,47 @@ export default {
             this.zoom = Math.min(this.zoom, 13)
         },
         markerClicked (marker) {
+        },
+        tooltipOffset () {
+            if (this.hasCustomMarker()) {
+                return [-4, -28]
+            }
+            return [0, -15]
+        },
+        markerClass () {
+            if (this.hasCustomMarker()) {
+                return 'custom-markers'
+            }
+            return 'default-markers'
+        },
+        hasCustomMarker () {
+            return (!this.$route.query.specie)
+        },
+        getIcon (observation) {
+            if (!this.hasCustomMarker()) {
+                return null
+            }
+            let color1 = [66, 244, 75]
+            let color2 = [226, 22, 22]
+            let computedColor = this.colourGradientor(0.5, color1, color2)
+            let pathFillColor = 'rgb(' + computedColor[0] + ',' + computedColor[1] + ',' + computedColor[2] + ')'
+            return L.divIcon({
+                html: '<svg version="1.1" class="marker" xmlns="http://www.w3.org/2000/svg"\n' +
+                    'width="35px" height="35px" viewBox="0 0 512 512" xml:space="preserve">' +
+                    '<g><path fill="' + pathFillColor + '" d="M206.549,0L206.549,0c-82.6,0-149.3,66.7-149.3,149.3c0,28.8,9.2,56.3,22,78.899l97.3,168.399c6.1,11,18.4,16.5,30,16.5\n' +
+                    'c11.601,0,23.3-5.5,30-16.5l97.3-168.299c12.9-22.601,22-49.601,22-78.901C355.849,66.8,289.149,0,206.549,0z M206.549,193.4\n' +
+                    'c-30,0-54.5-24.5-54.5-54.5s24.5-54.5,54.5-54.5s54.5,24.5,54.5,54.5C261.049,169,236.549,193.4,206.549,193.4z"/></g></svg>'
+            })
+        },
+        colourGradientor (p, color1, color2) {
+            let w = p * 2 - 1
+
+            let w1 = (w + 1) / 2.0
+            let w2 = 1 - w1
+
+            return [parseInt(color1[0] * w1 + color2[0] * w2),
+                parseInt(color1[1] * w1 + color2[1] * w2),
+                parseInt(color1[2] * w1 + color2[2] * w2)]
         }
     }
 }

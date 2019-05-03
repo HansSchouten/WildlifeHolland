@@ -1,0 +1,14 @@
+.custom-markers {
+  svg.marker {
+    margin-left: -12px;
+    margin-top: -18px;
+  }
+  .leaflet-div-icon {
+    background: none;
+    border: none;
+  }
+  .leaflet-popup {
+    bottom: 13px !important;
+    left: -77px !important;
+  }
+}
