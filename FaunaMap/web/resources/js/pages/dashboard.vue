@@ -1,5 +1,23 @@
 <template>
     <div id="page-dashboard">
+        <div class="q-pl-md q-pr-md q-pb-md">
+            <div class="row">
+                <div class="col-6 q-pr-sm">
+                    <q-input v-model="term" label="Soortnaam">
+                        <template v-slot:prepend>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                </div>
+                <div class="col-6 q-pl-sm">
+                    <q-select v-model="period" :options="periodOptions" label="Periode">
+                        <template v-slot:prepend>
+                            <q-icon name="event" />
+                        </template>
+                    </q-select>
+                </div>
+            </div>
+        </div>
         <q-list id="observation-list">
             <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="getMapUrl(observation)">
                 <q-item-section avatar>
@@ -41,6 +59,22 @@ export default {
     computed: mapGetters({
         observations: 'observations/specieObservations'
     }),
+
+    data () {
+        return {
+            term: null,
+            period: 'Vandaag',
+            periodOptions: [
+                'Afgelopen uur',
+                'Afgelopen 6uur',
+                'Vandaag',
+                'Gisteren',
+                'Eergisteren',
+                'Afgelopen 3 dagen',
+                'Afgelopen week'
+            ]
+        }
+    },
 
     mounted () {
         this.fetchObservations()
