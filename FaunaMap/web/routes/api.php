@@ -23,7 +23,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::patch('settings/profile', 'Settings\ProfileController@update');
     Route::patch('settings/password', 'Settings\PasswordController@update');
 
-    Route::get('observations', 'Observations\ObservationsController@index');
+    Route::get('specie-observations', 'Observations\ObservationsController@species');
+    Route::get('map-observations', 'Observations\ObservationsController@map');
 });
 
 Route::group(['middleware' => 'guest:api'], function () {

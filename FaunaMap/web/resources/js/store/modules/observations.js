@@ -27,7 +27,7 @@ export const mutations = {
 export const actions = {
     async fetchSpecieObservations ({ commit }, payload) {
         try {
-            const { data } = await axios.get('/api/observations', {
+            const { data } = await axios.get('/api/specie-observations', {
                 params: payload
             })
 
@@ -38,7 +38,7 @@ export const actions = {
     },
     async fetchMapObservations ({ commit }, payload) {
         try {
-            const { data } = await axios.get('/api/observations', {
+            const { data } = await axios.get('/api/map-observations', {
                 params: payload
             })
 

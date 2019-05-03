@@ -18,6 +18,15 @@
             </q-item-section>
         </q-item>
 
+        <q-item clickable icon="map" class="non-selectable top-level" :to="{ name: 'map' }">
+            <q-item-section avatar>
+                <q-icon color="primary" name="map"/>
+            </q-item-section>
+            <q-item-section>
+                {{ $t('map') }}
+            </q-item-section>
+        </q-item>
+
         <q-expansion-item :label="$t('settings')" icon="settings" class="non-selectable top-level">
             <q-list>
                 <q-item clickable :insetLevel="1" dense :to="{ name: 'settings.profile' }">
