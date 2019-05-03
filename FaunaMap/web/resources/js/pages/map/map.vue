@@ -130,14 +130,23 @@ export default {
             if (!this.hasCustomMarker()) {
                 return null
             }
-            let color1 = [66, 244, 75]
-            let color2 = [226, 22, 22]
-            let computedColor = this.colourGradientor(0.5, color1, color2)
+            let factor = observation.specieAbundance / (observation.maxSpeciesCount / 4)
+            factor = Math.min(factor, 1)
+
+            let color1 = [255, 0, 0]
+            let color2 = [255, 255, 0]
+            let color3 = [62, 195, 55]
+            let computedColor = null
+            if (factor < 0.5) {
+                computedColor = this.colourGradientor(factor * 2, color2, color1)
+            } else {
+                computedColor = this.colourGradientor((factor - 0.5) * 2, color3, color2)
+            }
             let pathFillColor = 'rgb(' + computedColor[0] + ',' + computedColor[1] + ',' + computedColor[2] + ')'
             return L.divIcon({
                 html: '<svg version="1.1" class="marker" xmlns="http://www.w3.org/2000/svg"\n' +
                     'width="35px" height="35px" viewBox="0 0 512 512" xml:space="preserve">' +
-                    '<g><path fill="' + pathFillColor + '" d="M206.549,0L206.549,0c-82.6,0-149.3,66.7-149.3,149.3c0,28.8,9.2,56.3,22,78.899l97.3,168.399c6.1,11,18.4,16.5,30,16.5\n' +
+                    '<g><path stroke="black" stroke-width="10" stroke-opacity="0.3" fill="' + pathFillColor + '" d="M206.549,0L206.549,0c-82.6,0-149.3,66.7-149.3,149.3c0,28.8,9.2,56.3,22,78.899l97.3,168.399c6.1,11,18.4,16.5,30,16.5\n' +
                     'c11.601,0,23.3-5.5,30-16.5l97.3-168.299c12.9-22.601,22-49.601,22-78.901C355.849,66.8,289.149,0,206.549,0z M206.549,193.4\n' +
                     'c-30,0-54.5-24.5-54.5-54.5s24.5-54.5,54.5-54.5s54.5,24.5,54.5,54.5C261.049,169,236.549,193.4,206.549,193.4z"/></g></svg>'
             })
