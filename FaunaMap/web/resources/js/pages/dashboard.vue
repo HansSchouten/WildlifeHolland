@@ -118,7 +118,7 @@ export default {
         applyTermFilter (observations) {
             let filteredObservations = {}
             for (let specieName in observations) {
-                if (!this.term || observations[specieName].name.toLowerCase().startsWith(this.term.toLowerCase())) {
+                if (!this.term || observations[specieName].name.toLowerCase().includes(this.term.toLowerCase())) {
                     filteredObservations[specieName] = observations[specieName]
                 }
             }
