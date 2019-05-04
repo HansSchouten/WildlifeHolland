@@ -192,7 +192,7 @@ class Observation extends Model
                     ['specieAbundance' => 'asc']
                 ]
             ],
-            'size' => 1000
+            'size' => 10000
         ];
         return self::complexSearch($query);
     }

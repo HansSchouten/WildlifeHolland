@@ -56,7 +56,6 @@ class SpecieObservationsCollection extends ResourceCollection
                 'specieImage' => $specie['imageUrl'],
                 'specieAbundance' => $specie['observationCount'],
                 'lastObservationTime' => date("H:i", strtotime($lastTimeString)),
-                'date' => date("Y-m-d", strtotime($lastTimeString))
             ];
         }
 

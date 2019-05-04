@@ -41,7 +41,8 @@ export default {
 
     computed: {
         ...mapGetters({
-            observations: 'observations/mapObservations'
+            observations: 'observations/mapObservations',
+            filterPeriod: 'observations/filterPeriod'
         })
     },
 
@@ -78,7 +79,7 @@ export default {
         async fetchObservations () {
             let payload = {
                 specie: this.$route.query.specie,
-                date: this.$route.query.date
+                period: this.filterPeriod
             }
             await this.$store.dispatch('observations/fetchMapObservations', payload)
             this.updateMarkers()

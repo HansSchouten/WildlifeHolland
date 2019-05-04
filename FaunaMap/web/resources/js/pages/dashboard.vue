@@ -93,8 +93,7 @@ export default {
             return {
                 name: 'map',
                 query: {
-                    specie: specieObservation.name,
-                    date: specieObservation.date
+                    specie: specieObservation.name
                 }
             }
         },
