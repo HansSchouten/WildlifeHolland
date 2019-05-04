@@ -4,13 +4,25 @@ import * as types from '../mutation-types'
 // state
 export const state = {
     specieObservations: [],
-    mapObservations: []
+    mapObservations: [],
+    filterPeriods: [
+        { id: '1', text: 'Afgelopen uur' },
+        { id: '3', text: 'Afgelopen 3uur' },
+        { id: '12', text: 'Afgelopen 12uur' },
+        { id: '24', text: 'Afgelopen 24uur' },
+        { id: '48', text: 'Afgelopen 2 dagen' },
+        { id: '72', text: 'Afgelopen 3 dagen' },
+        { id: '168', text: 'Afgelopen week' }
+    ],
+    filterPeriod: { id: '24', text: 'Afgelopen 24uur' }
 }
 
 // getters
 export const getters = {
     specieObservations: state => state.specieObservations,
-    mapObservations: state => state.mapObservations
+    mapObservations: state => state.mapObservations,
+    filterPeriods: state => state.filterPeriods,
+    filterPeriod: state => state.filterPeriod
 }
 
 // mutations
@@ -20,6 +32,9 @@ export const mutations = {
     },
     [types.FETCH_MAP_OBSERVATIONS_SUCCESS] (state, { observations }) {
         state.mapObservations = observations
+    },
+    [types.UPDATE_FILTER_PERIOD_SUCCESS] (state, { filterPeriod }) {
+        state.filterPeriod = filterPeriod
     }
 }
 
@@ -43,6 +58,13 @@ export const actions = {
             })
 
             commit(types.FETCH_MAP_OBSERVATIONS_SUCCESS, { observations: data.data })
+        } catch (e) {
+            console.log(e)
+        }
+    },
+    async updateFilterPeriod ({ commit }, newValue) {
+        try {
+            commit(types.UPDATE_FILTER_PERIOD_SUCCESS, { filterPeriod: newValue })
         } catch (e) {
             console.log(e)
         }

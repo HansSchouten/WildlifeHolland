@@ -49,7 +49,7 @@ class ObservationsController extends Controller
             $hoursPeriod = intval(json_decode($request->period)->id);
         }
         $timestamp = Carbon::now()->subHours($hoursPeriod)->format('Y-m-d H:i');
-        
+
         $parameters = [
             'must' => [
                 'date' => $request->date ?? null,
