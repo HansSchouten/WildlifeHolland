@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Observations;
 use App\Http\Resources\ObservationsCollection;
 use App\Http\Resources\SpecieObservationsCollection;
 use App\Models\Observation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -19,10 +20,17 @@ class ObservationsController extends Controller
      */
     public function species(Request $request)
     {
+        $hoursPeriod = 24;
+        if (isset($request->period)) {
+             $hoursPeriod = intval(json_decode($request->period)->id);
+        }
+        $timestamp = Carbon::now()->subHours($hoursPeriod)->format('Y-m-d H:i');
+
         $parameters = [
-            'filters' => [
-                'date' => $request->date ?? date('Y-m-d')
-            ]
+            'must' => [
+                'date' => $request->date ?? null,
+            ],
+            'timestamp' => $timestamp
         ];
         $observations = Observation::search($parameters);
         return new SpecieObservationsCollection($observations);
@@ -36,11 +44,18 @@ class ObservationsController extends Controller
      */
     public function map(Request $request)
     {
+        $hoursPeriod = 24;
+        if (isset($request->period)) {
+            $hoursPeriod = intval(json_decode($request->period)->id);
+        }
+        $timestamp = Carbon::now()->subHours($hoursPeriod)->format('Y-m-d H:i');
+        
         $parameters = [
-            'filters' => [
-                'date' => $request->date ?? date('Y-m-d'),
+            'must' => [
+                'date' => $request->date ?? null,
                 'specieName' => $request->specie ?? null
-            ]
+            ],
+            'timestamp' => $timestamp
         ];
         $observations = Observation::search($parameters);
         return new ObservationsCollection($observations);

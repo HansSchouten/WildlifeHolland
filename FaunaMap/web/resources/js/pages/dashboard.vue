@@ -10,7 +10,13 @@
                     </q-input>
                 </div>
                 <div class="col-6 q-pl-sm">
-                    <q-select v-model="period" :options="periodOptions" label="Periode">
+                    <q-select
+                        v-model="period"
+                        :options="periodOptions"
+                        option-value="id"
+                        option-label="text"
+                        label="Periode"
+                        @input="fetchObservations()">
                         <template v-slot:prepend>
                             <q-icon name="event" />
                         </template>
@@ -65,15 +71,15 @@ export default {
     data () {
         return {
             term: null,
-            period: 'Vandaag',
+            period: { id: '24', text: 'Afgelopen 24uur' },
             periodOptions: [
-                'Afgelopen uur',
-                'Afgelopen 6uur',
-                'Vandaag',
-                'Gisteren',
-                'Eergisteren',
-                'Afgelopen 3 dagen',
-                'Afgelopen week'
+                { id: '1', text: 'Afgelopen uur' },
+                { id: '3', text: 'Afgelopen 3uur' },
+                { id: '12', text: 'Afgelopen 12uur' },
+                { id: '24', text: 'Afgelopen 24uur' },
+                { id: '48', text: 'Afgelopen 2 dagen' },
+                { id: '72', text: 'Afgelopen 3 dagen' },
+                { id: '168', text: 'Afgelopen week' }
             ]
         }
     },
@@ -84,7 +90,10 @@ export default {
 
     methods: {
         async fetchObservations () {
-            await this.$store.dispatch('observations/fetchSpecieObservations')
+            let payload = {
+                period: this.period
+            }
+            await this.$store.dispatch('observations/fetchSpecieObservations', payload)
         },
         getMapUrl (specieObservation) {
             return {
@@ -96,7 +105,7 @@ export default {
             }
         },
         async refresher (done) {
-            await this.$store.dispatch('observations/fetchSpecieObservations')
+            await this.fetchObservations()
             done()
         }
     }

@@ -167,10 +167,10 @@ class Observation extends Model
      */
     public static function search(array $parameters = [])
     {
-        $filters = [];
-        foreach ($parameters['filters'] as $key => $value) {
+        $must = [];
+        foreach ($parameters['must'] as $key => $value) {
             if (! $value) continue;
-            $filters[] = ['match' => [$key => $value]];
+            $must[] = ['match' => [$key => $value]];
         }
 
         $query = [
@@ -178,7 +178,14 @@ class Observation extends Model
             'body' => [
                 'query' => [
                     'bool' => [
-                        'must' => $filters
+                        'must' => $must,
+                        'filter' => [
+                            'range' => [
+                                'timestamp' => [
+                                    'gte' => $parameters['timestamp']
+                                ]
+                            ]
+                        ]
                     ]
                 ],
                 'sort' => [
