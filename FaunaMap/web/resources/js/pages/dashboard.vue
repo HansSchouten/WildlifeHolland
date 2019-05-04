@@ -18,31 +18,33 @@
                 </div>
             </div>
         </div>
-        <q-list id="observation-list">
-            <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="getMapUrl(observation)">
-                <q-item-section avatar>
-                    <q-avatar>
-                        <img :src="observation.specieImage">
-                    </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                    <span class="specie-name">
-                        {{ observation.name }}
-                    </span>
-                    <span class="observation-details">
-                        <span class="detail">
-                            <q-icon name="fab fa-sistrix" /> {{ observation.provinces }}
+        <q-pull-to-refresh @refresh="refresher">
+            <q-list id="observation-list">
+                <q-item clickable v-ripple v-for="(observation, index) in observations" :key="`observation-${index}`" :to="getMapUrl(observation)">
+                    <q-item-section avatar>
+                        <q-avatar>
+                            <img :src="observation.specieImage">
+                        </q-avatar>
+                    </q-item-section>
+                    <q-item-section>
+                        <span class="specie-name">
+                            {{ observation.name }}
                         </span>
-                        <span class="detail">
-                            <q-icon name="far fa-comment" /> {{ observation.count }} {{ $tc('observation', observation.count) }}
+                        <span class="observation-details">
+                            <span class="detail">
+                                <q-icon name="fab fa-sistrix" /> {{ observation.provinces }}
+                            </span>
+                            <span class="detail">
+                                <q-icon name="far fa-comment" /> {{ observation.count }} {{ $tc('observation', observation.count) }}
+                            </span>
+                            <span class="detail" v-if="observation.lastObservationTime != null">
+                                <q-icon name="far fa-clock" /> {{ observation.lastObservationTime }}
+                            </span>
                         </span>
-                        <span class="detail" v-if="observation.lastObservationTime != null">
-                            <q-icon name="far fa-clock" /> {{ observation.lastObservationTime }}
-                        </span>
-                    </span>
-                </q-item-section>
-            </q-item>
-        </q-list>
+                    </q-item-section>
+                </q-item>
+            </q-list>
+        </q-pull-to-refresh>
     </div>
 </template>
 
@@ -92,6 +94,10 @@ export default {
                     date: specieObservation.date
                 }
             }
+        },
+        async refresher (done) {
+            await this.$store.dispatch('observations/fetchSpecieObservations')
+            done()
         }
     }
 }
