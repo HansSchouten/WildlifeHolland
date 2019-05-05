@@ -116,8 +116,36 @@ class Observation extends Model
             $date = str_replace('observations-', '', basename($observationsFile, '.json'));
             $jsonObservations = file_get_contents($observationsFile);
             $structuredObservations = json_decode($jsonObservations,true);
-            self::addFlattenedObservations($observations, $species, $structuredObservations, $date);
+            self::addFlattenedObservations($observations, [], $species, $structuredObservations, $date);
         }
+
+        return $observations;
+    }
+
+    /**
+     * Return all observations stored in today's JSON file with ids different than the given list of ids.
+     *
+     * @param array $knownObservationIds
+     * @return \Elasticquent\ElasticquentCollection
+     */
+    public static function getUnseenJsonObservationsOfToday(array $knownObservationIds)
+    {
+        $observations = (new Observation)->newCollection();
+
+        $date = date('Y-m-d');
+        $observationsFile = getDataPath('observations-' . $date . '.json');
+        if (! file_exists($observationsFile)) {
+            return $observations;
+        }
+
+        // load species data
+        $speciesFile = getDataPath('species.json');
+        $jsonSpecies = file_get_contents($speciesFile);
+        $species = json_decode($jsonSpecies, true);
+
+        $jsonObservations = file_get_contents($observationsFile);
+        $structuredObservations = json_decode($jsonObservations,true);
+        self::addFlattenedObservations($observations, $knownObservationIds, $species, $structuredObservations, $date);
 
         return $observations;
     }
@@ -126,11 +154,12 @@ class Observation extends Model
      * Flatten a multidimensional array of observations into an array containing all data per observation.
      *
      * @param $observations
+     * @param array $skipObservations
      * @param array $species
      * @param array $structuredObservations
      * @param string $date
      */
-    protected static function addFlattenedObservations(&$observations, array $species, array $structuredObservations, string $date)
+    protected static function addFlattenedObservations(&$observations, array $skipObservations, array $species, array $structuredObservations, string $date)
     {
         foreach ($structuredObservations as $specieGroup => $observationsPerProvince) {
             foreach ($observationsPerProvince as $province => $observationsPerSpecie) {
@@ -142,6 +171,9 @@ class Observation extends Model
                     $specie = $species[$specieName];
 
                     foreach ($specieObservations as $observationId => $observation) {
+                        if (in_array($observationId, $skipObservations)) {
+                            continue;
+                        }
                         $obsInstance = new Observation;
                         $obsInstance->id = $observationId;
                         $obsInstance->province = Province::getKey($province);
