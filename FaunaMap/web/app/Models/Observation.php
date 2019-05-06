@@ -72,14 +72,14 @@ class Observation extends Model
         'id' => [
             'type' => 'keyword'
         ],
-        'count' => [
-            'type' => 'integer'
-        ],
         'province' => [
             'type' => 'keyword'
         ],
         'location' => [
             'type' => 'geo_point'
+        ],
+        'specieGroup' => [
+            'type' => 'keyword'
         ],
         'specieName' => [
             'type' => 'keyword'
@@ -182,7 +182,7 @@ class Observation extends Model
                         $obsInstance->specieName = $specieName;
                         $obsInstance->specieAbundance = $specie['observationCount'];
                         $obsInstance->date = $date;
-                        $obsInstance->timestamp = $date . ' ' . $observation['time'];
+                        $obsInstance->timestamp = trim($date . ' ' . $observation['time']);
 
                         $observations->push($obsInstance);
                     }

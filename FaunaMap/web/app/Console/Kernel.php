@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('observations:index')
+        $schedule->command('observations:update')
             ->everyMinute();
     }
 
