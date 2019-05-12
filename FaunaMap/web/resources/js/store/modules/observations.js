@@ -3,6 +3,7 @@ import * as types from '../mutation-types'
 
 // state
 export const state = {
+    dashboardFilterTerm: null,
     specieObservations: [],
     mapObservations: [],
     filterPeriods: [
@@ -31,7 +32,8 @@ export const getters = {
     },
     mapObservations: state => state.mapObservations,
     filterPeriods: state => state.filterPeriods,
-    filterPeriod: state => state.filterPeriod
+    filterPeriod: state => state.filterPeriod,
+    dashboardFilterTerm: state => state.dashboardFilterTerm
 }
 
 // mutations
@@ -44,6 +46,9 @@ export const mutations = {
     },
     [types.UPDATE_FILTER_PERIOD_SUCCESS] (state, { filterPeriod }) {
         state.filterPeriod = filterPeriod
+    },
+    [types.UPDATE_DASHBOARD_FILTER_TERM_SUCCESS] (state, { dashboardFilterTerm }) {
+        state.dashboardFilterTerm = dashboardFilterTerm
     }
 }
 
@@ -74,6 +79,13 @@ export const actions = {
     async updateFilterPeriod ({ commit }, newValue) {
         try {
             commit(types.UPDATE_FILTER_PERIOD_SUCCESS, { filterPeriod: newValue })
+        } catch (e) {
+            console.log(e)
+        }
+    },
+    updateDashboardFilterTerm ({ commit }, newValue) {
+        try {
+            commit(types.UPDATE_DASHBOARD_FILTER_TERM_SUCCESS, { dashboardFilterTerm: newValue })
         } catch (e) {
             console.log(e)
         }

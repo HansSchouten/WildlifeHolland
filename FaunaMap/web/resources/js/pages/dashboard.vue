@@ -6,8 +6,9 @@
                     <div class="row">
                         <div class="col-6 q-pr-sm">
                             <q-input
-                                v-model="term"
-                                label="Soortnaam">
+                                :value="dashboardFilterTerm"
+                                label="Soortnaam"
+                                @input="changeFilterTerm">
                                 <template v-slot:prepend>
                                     <q-icon name="search" />
                                 </template>
@@ -29,7 +30,7 @@
                     </div>
                 </div>
                 <q-list id="observation-list">
-                    <q-item clickable v-ripple v-for="(observation, index) in filteredSpecieObservations(term)" :key="`observation-${index}`" :to="getMapUrl(observation)">
+                    <q-item clickable v-ripple v-for="(observation, index) in filteredSpecieObservations(dashboardFilterTerm)" :key="`observation-${index}`" :to="getMapUrl(observation)">
                         <q-item-section avatar>
                             <q-avatar>
                                 <img :src="observation.specieImage">
@@ -70,17 +71,12 @@ export default {
 
     computed: {
         ...mapGetters({
+            dashboardFilterTerm: 'observations/dashboardFilterTerm',
             observations: 'observations/specieObservations',
             filteredSpecieObservations: 'observations/filteredSpecieObservations',
             filterPeriods: 'observations/filterPeriods',
             filterPeriod: 'observations/filterPeriod'
         })
-    },
-
-    data () {
-        return {
-            term: null
-        }
     },
 
     mounted () {
@@ -109,6 +105,9 @@ export default {
         async changePeriod (newValue) {
             await this.$store.dispatch('observations/updateFilterPeriod', newValue)
             this.fetchObservations()
+        },
+        changeFilterTerm (newValue) {
+            this.$store.dispatch('observations/updateDashboardFilterTerm', newValue)
         }
     }
 }
