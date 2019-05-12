@@ -7,8 +7,7 @@
                         <div class="col-6 q-pr-sm">
                             <q-input
                                 v-model="term"
-                                label="Soortnaam"
-                                @input="changeTerm">
+                                label="Soortnaam">
                                 <template v-slot:prepend>
                                     <q-icon name="search" />
                                 </template>
@@ -30,7 +29,7 @@
                     </div>
                 </div>
                 <q-list id="observation-list">
-                    <q-item clickable v-ripple v-for="(observation, index) in termFilteredObservations" :key="`observation-${index}`" :to="getMapUrl(observation)">
+                    <q-item clickable v-ripple v-for="(observation, index) in filteredSpecieObservations(term)" :key="`observation-${index}`" :to="getMapUrl(observation)">
                         <q-item-section avatar>
                             <q-avatar>
                                 <img :src="observation.specieImage">
@@ -72,6 +71,7 @@ export default {
     computed: {
         ...mapGetters({
             observations: 'observations/specieObservations',
+            filteredSpecieObservations: 'observations/filteredSpecieObservations',
             filterPeriods: 'observations/filterPeriods',
             filterPeriod: 'observations/filterPeriod'
         })
@@ -79,8 +79,7 @@ export default {
 
     data () {
         return {
-            term: null,
-            termFilteredObservations: []
+            term: null
         }
     },
 
@@ -94,7 +93,6 @@ export default {
                 period: this.filterPeriod
             }
             await this.$store.dispatch('observations/fetchSpecieObservations', payload)
-            this.termFilteredObservations = this.applyTermFilter(this.observations)
         },
         getMapUrl (specieObservation) {
             return {
@@ -111,18 +109,6 @@ export default {
         async changePeriod (newValue) {
             await this.$store.dispatch('observations/updateFilterPeriod', newValue)
             this.fetchObservations()
-        },
-        changeTerm () {
-            this.termFilteredObservations = this.applyTermFilter(this.observations)
-        },
-        applyTermFilter (observations) {
-            let filteredObservations = {}
-            for (let specieName in observations) {
-                if (!this.term || observations[specieName].name.toLowerCase().includes(this.term.toLowerCase())) {
-                    filteredObservations[specieName] = observations[specieName]
-                }
-            }
-            return filteredObservations
         }
     }
 }

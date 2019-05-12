@@ -20,6 +20,15 @@ export const state = {
 // getters
 export const getters = {
     specieObservations: state => state.specieObservations,
+    filteredSpecieObservations: state => term => {
+        let filteredObservations = {}
+        for (let specieName in state.specieObservations) {
+            if (!term || state.specieObservations[specieName].name.toLowerCase().includes(term.toLowerCase())) {
+                filteredObservations[specieName] = state.specieObservations[specieName]
+            }
+        }
+        return filteredObservations
+    },
     mapObservations: state => state.mapObservations,
     filterPeriods: state => state.filterPeriods,
     filterPeriod: state => state.filterPeriod
