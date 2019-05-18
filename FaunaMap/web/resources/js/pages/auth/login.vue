@@ -17,7 +17,7 @@
                             <div class="col-12 q-pb-lg q-mb-md">
                                 <div class="q-pl-xs q-pr-xs">
                                     <q-input v-model="form.email" type="email" bottom-slots
-                                             :label="$t('email')" :error="form.errors.has('email')">
+                                             :label="$t('email')" :error="form.errors.has('email')" :autofocus="true">
                                         <template v-slot:error>
                                             <has-error :form="form" field="email"/>
                                         </template>

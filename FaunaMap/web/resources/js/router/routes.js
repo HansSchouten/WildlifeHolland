@@ -9,6 +9,7 @@ const Map = () => import('~/pages/map/map').then(m => m.default || m)
 
 const Settings = () => import('~/pages/settings/index').then(m => m.default || m)
 const SettingsProfile = () => import('~/pages/settings/profile/index').then(m => m.default || m)
+const SettingsNotifications = () => import('~/pages/settings/notifications/index').then(m => m.default || m)
 
 export default [
     { path: '/login', name: 'login', component: Login },
@@ -23,7 +24,8 @@ export default [
         component: Settings,
         children: [
             { path: '', redirect: { name: 'settings.profile' } },
-            { path: 'profile', name: 'settings.profile', component: SettingsProfile }
+            { path: 'profile', name: 'settings.profile', component: SettingsProfile },
+            { path: 'notifications', name: 'settings.notifications', component: SettingsNotifications }
         ]
     },
 
