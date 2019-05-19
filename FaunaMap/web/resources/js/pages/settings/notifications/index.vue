@@ -4,25 +4,46 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
     middleware: 'auth',
 
-    mounted () {
-        if (!('Notification' in window)) {
-            alert('This browser does not support system notifications')
-        } else if (Notification.permission === 'granted') {
-            this.notify()
-        } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function (permission) {
-                if (permission === 'granted') {
-                    this.notify()
-                }
-            })
-        }
+    computed: {
+        ...mapGetters({
+            observations: 'observations/specieObservations',
+        })
+    },
+
+    async mounted () {
+        await this.notifyOnSighting()
     },
     methods: {
-        notify () {
-            let notification = new Notification('Test Notification')
+        async notifyOnSighting () {
+            while (true) {
+                await this.fetchObservations()
+                //this.notify('hoihoi')
+                await this.sleep(10000)
+            }
+        },
+        async fetchObservations () {
+            let payload = {
+                period: this.filterPeriod
+            }
+            await this.$store.dispatch('observations/fetchSpecieObservations', payload)
+        },
+        sleep (ms) {
+            return new Promise(resolve => setTimeout(resolve, ms))
+        },
+        async notify (text) {
+            navigator.serviceWorker.register('/sw.js')
+            Notification.requestPermission(function (result) {
+                if (result === 'granted') {
+                    navigator.serviceWorker.ready.then(function (registration) {
+                        registration.showNotification(text)
+                    })
+                }
+            })
         }
     }
 }
