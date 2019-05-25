@@ -9,28 +9,51 @@ import { mapGetters } from 'vuex'
 export default {
     middleware: 'auth',
 
+    metaInfo () {
+        return { title: this.$t('notfications') }
+    },
+
+    data () {
+        return {
+            knownNearbyObservations: []
+        }
+    },
+
     computed: {
         ...mapGetters({
-            observations: 'observations/specieObservations',
+            nearbyObservations: 'observations/nearbyObservations',
+            filterPeriods: 'observations/filterPeriods'
         })
     },
 
     async mounted () {
-        await this.notifyOnSighting()
+        await this.fetchNearbyObservations()
+        this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
+        await this.sleep(10000)
+
+        while (true) {
+            await this.notifyNewNearbySightings()
+            await this.sleep(10000)
+        }
     },
     methods: {
-        async notifyOnSighting () {
-            while (true) {
-                await this.fetchObservations()
-                //this.notify('hoihoi')
-                await this.sleep(10000)
-            }
+        async notifyNewNearbySightings () {
+            await this.fetchNearbyObservations()
+            // check the loaded observations and notify any new sightings
+            this.nearbyObservations.forEach(observation => {
+                if (!(this.knownNearbyObservations.includes(observation.id))) {
+                    console.log(observation.specieName)
+                    this.notify(observation.specieName)
+                }
+            })
+            // update the list of known nearby observations
+            this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
         },
-        async fetchObservations () {
+        async fetchNearbyObservations () {
             let payload = {
-                period: this.filterPeriod
+                period: this.filterPeriods[1]
             }
-            await this.$store.dispatch('observations/fetchSpecieObservations', payload)
+            await this.$store.dispatch('observations/fetchNearbyObservations', payload)
         },
         sleep (ms) {
             return new Promise(resolve => setTimeout(resolve, ms))

@@ -42,7 +42,7 @@ class ObservationsController extends Controller
      * @param Request $request
      * @return ObservationsCollection|SpecieObservationsCollection
      */
-    public function map(Request $request)
+    public function list(Request $request)
     {
         $hoursPeriod = 24;
         if (isset($request->period)) {

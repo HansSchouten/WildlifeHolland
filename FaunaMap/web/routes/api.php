@@ -24,7 +24,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::patch('settings/password', 'Settings\PasswordController@update');
 
     Route::get('specie-observations', 'Observations\ObservationsController@species');
-    Route::get('map-observations', 'Observations\ObservationsController@map');
+    Route::get('observations', 'Observations\ObservationsController@list');
 });
 
 Route::group(['middleware' => 'guest:api'], function () {

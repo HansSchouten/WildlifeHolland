@@ -6,6 +6,7 @@ export const state = {
     dashboardFilterTerm: null,
     specieObservations: [],
     mapObservations: [],
+    nearbyObservations: [],
     filterPeriods: [
         { id: '1', text: 'Afgelopen uur' },
         { id: '3', text: 'Afgelopen 3uur' },
@@ -31,6 +32,7 @@ export const getters = {
         return filteredObservations
     },
     mapObservations: state => state.mapObservations,
+    nearbyObservations: state => state.nearbyObservations,
     filterPeriods: state => state.filterPeriods,
     filterPeriod: state => state.filterPeriod,
     dashboardFilterTerm: state => state.dashboardFilterTerm
@@ -43,6 +45,9 @@ export const mutations = {
     },
     [types.FETCH_MAP_OBSERVATIONS_SUCCESS] (state, { observations }) {
         state.mapObservations = observations
+    },
+    [types.FETCH_NEARBY_OBSERVATIONS_SUCCESS] (state, { observations }) {
+        state.nearbyObservations = observations
     },
     [types.UPDATE_FILTER_PERIOD_SUCCESS] (state, { filterPeriod }) {
         state.filterPeriod = filterPeriod
@@ -67,11 +72,22 @@ export const actions = {
     },
     async fetchMapObservations ({ commit }, payload) {
         try {
-            const { data } = await axios.get('/api/map-observations', {
+            const { data } = await axios.get('/api/observations', {
                 params: payload
             })
 
             commit(types.FETCH_MAP_OBSERVATIONS_SUCCESS, { observations: data.data })
+        } catch (e) {
+            console.log(e)
+        }
+    },
+    async fetchNearbyObservations ({ commit }, payload) {
+        try {
+            const { data } = await axios.get('/api/observations', {
+                params: payload
+            })
+
+            commit(types.FETCH_NEARBY_OBSERVATIONS_SUCCESS, { observations: data.data })
         } catch (e) {
             console.log(e)
         }
