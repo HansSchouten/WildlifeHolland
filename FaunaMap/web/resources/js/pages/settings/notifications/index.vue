@@ -40,12 +40,13 @@ export default {
         async notifyNewNearbySightings () {
             await this.fetchNearbyObservations()
             // check the loaded observations and notify any new sightings
-            this.nearbyObservations.forEach(observation => {
+            for (let i = 0; i < this.nearbyObservations.length; i++) {
+                let observation = this.nearbyObservations[i]
                 if (!(this.knownNearbyObservations.includes(observation.id))) {
-                    console.log(observation.specieName)
-                    this.notify(observation.specieName)
+                    console.log(observation.specieName + ' nearby!')
+                    await this.notify(observation.specieName)
                 }
-            })
+            }
             // update the list of known nearby observations
             this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
         },
