@@ -33,5 +33,7 @@
   "register_with": "Register with",
 
   "observation": "observation | observations",
-  "map": "Map"
+  "map": "Map",
+
+  "notifications": "Notifications"
 }

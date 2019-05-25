@@ -10,7 +10,7 @@ export default {
     middleware: 'auth',
 
     metaInfo () {
-        return { title: this.$t('notfications') }
+        return { title: this.$t('notifications') }
     },
 
     data () {
@@ -29,11 +29,11 @@ export default {
     async mounted () {
         await this.fetchNearbyObservations()
         this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
-        await this.sleep(10000)
+        await this.sleep(5000)
 
         while (true) {
             await this.notifyNewNearbySightings()
-            await this.sleep(10000)
+            await this.sleep(5000)
         }
     },
     methods: {
@@ -61,9 +61,9 @@ export default {
         },
         async notify (text) {
             navigator.serviceWorker.register('/sw.js')
-            Notification.requestPermission(function (result) {
+            Notification.requestPermission(result => {
                 if (result === 'granted') {
-                    navigator.serviceWorker.ready.then(function (registration) {
+                    navigator.serviceWorker.ready.then(registration => {
                         registration.showNotification(text)
                     })
                 }
