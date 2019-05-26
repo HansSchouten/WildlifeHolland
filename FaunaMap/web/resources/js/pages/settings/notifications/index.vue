@@ -55,8 +55,7 @@ export default {
                 let observation = this.nearbyObservations[i]
                 if (!(this.knownNearbyObservations.includes(observation.id))) {
                     console.log(observation.specieName + ' nearby!')
-                    let text = observation.time + ' ' + observation.specieName
-                    await this.notify(text)
+                    await this.notifyObservation(observation)
                 }
             }
 
@@ -74,6 +73,23 @@ export default {
         sleep (ms) {
             return new Promise(resolve => setTimeout(resolve, ms))
         },
+        async notifyObservation (observation) {
+            let text = observation.specieName
+
+            // add time
+            if (observation.timestamp.toString().includes(' ')) {
+                let timestampParts = observation.timestamp.toString().split(' ')
+                text = '[' + timestampParts[1] + '] ' + text
+            }
+
+            // add distance
+            if (this.coordinates !== null) {
+                let distance = this.geoDistance(this.coordinates, observation.location)
+                let distanceText = (distance < 1) ? Math.round(distance / 1000) + 'm' : Number(distance.toFixed(2)) + 'km'
+                text += ' op ' + distanceText
+            }
+            await this.notify(text)
+        },
         async notify (text) {
             if (Notification.permission !== 'denied') {
                 Notification.requestPermission(function (permission) {
@@ -85,6 +101,29 @@ export default {
                     }
                 })
             }
+        },
+        geoDistance (pos1, pos2) {
+            let lat1 = pos1.split(',')[0]
+            let lon1 = pos1.split(',')[1]
+            let lat2 = pos2.split(',')[0]
+            let lon2 = pos2.split(',')[1]
+
+            if ((lat1 === lat2) && (lon1 === lon2)) {
+                return 0
+            }
+            let radlat1 = Math.PI * lat1 / 180
+            let radlat2 = Math.PI * lat2 / 180
+            let theta = lon1 - lon2
+            let radtheta = Math.PI * theta / 180
+            let dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta)
+            if (dist > 1) {
+                dist = 1
+            }
+            dist = Math.acos(dist)
+            dist = dist * 180 / Math.PI
+            dist = dist * 60 * 1.1515
+            dist = dist * 1.609344
+            return dist
         }
     }
 }
