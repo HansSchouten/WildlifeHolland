@@ -60,14 +60,16 @@ export default {
             return new Promise(resolve => setTimeout(resolve, ms))
         },
         async notify (text) {
-            navigator.serviceWorker.register('/sw.js')
-            Notification.requestPermission(result => {
-                if (result === 'granted') {
-                    navigator.serviceWorker.ready.then(registration => {
-                        registration.showNotification(text)
-                    })
-                }
-            })
+            if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    if (!('permission' in Notification)) {
+                        Notification.permission = permission
+                    }
+                    if (permission === 'granted') {
+                        let notification = new Notification(text)
+                    }
+                })
+            }
         }
     }
 }
