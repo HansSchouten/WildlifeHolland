@@ -35,5 +35,6 @@
   "observation": "observation | observations",
   "map": "Map",
 
-  "notifications": "Notifications"
+  "notifications": "Notifications",
+  "nearby_observation_notifications_enabled": "Notifications of nearby sightings enabled"
 }

@@ -34,6 +34,10 @@ export default {
             maximumAge: 0
         }).then(c => { this.coordinates = c.lat + ',' + c.lng })
 
+        // send test notification
+        this.notify(this.$t('nearby_observation_notifications_enabled'))
+
+        // load initial list of known observations
         await this.fetchNearbyObservations()
         this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
 
@@ -45,14 +49,17 @@ export default {
     methods: {
         async notifyNewNearbySightings () {
             await this.fetchNearbyObservations()
+
             // check the loaded observations and notify any new sightings
             for (let i = 0; i < this.nearbyObservations.length; i++) {
                 let observation = this.nearbyObservations[i]
                 if (!(this.knownNearbyObservations.includes(observation.id))) {
                     console.log(observation.specieName + ' nearby!')
-                    await this.notify(observation.specieName)
+                    let text = observation.time + ' ' + observation.specieName
+                    await this.notify(text)
                 }
             }
+
             // update the list of known nearby observations
             this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
         },
@@ -74,7 +81,7 @@ export default {
                         Notification.permission = permission
                     }
                     if (permission === 'granted') {
-                        let notification = new Notification(text)
+                        new Notification(text)
                     }
                 })
             }

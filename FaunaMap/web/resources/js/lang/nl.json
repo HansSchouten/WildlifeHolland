@@ -35,5 +35,6 @@
   "observation": "waarneming | waarnemingen",
   "map": "Kaart",
 
-  "notifications": "Notificaties"
+  "notifications": "Notificaties",
+  "nearby_observation_notifications_enabled": "Notificaties van nabije waarnemingen ingeschakeld"
 }
