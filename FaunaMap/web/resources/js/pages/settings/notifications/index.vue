@@ -35,7 +35,7 @@ export default {
         }).then(c => { this.coordinates = c.lat + ',' + c.lng })
 
         // send test notification
-        this.notify(this.$t('nearby_observation_notifications_enabled'))
+        this.notify(this.$t('nearby_observation_notifications_enabled'), null)
 
         // load initial list of known observations
         await this.fetchNearbyObservations()
@@ -96,16 +96,23 @@ export default {
             }
 
             console.log(text)
-            await this.notify(text)
+            let link = 'https://waarneming.nl/observation/' + observation.id
+            await this.notify(text, link)
         },
-        async notify (text) {
+        async notify (text, link) {
             if (Notification.permission !== 'denied') {
                 Notification.requestPermission(function (permission) {
                     if (!('permission' in Notification)) {
                         Notification.permission = permission
                     }
                     if (permission === 'granted') {
-                        new Notification(text)
+                        let notification = new Notification(text)
+                        if (link !== null) {
+                            notification.onclick = event => {
+                                event.preventDefault()
+                                window.open(link, '_blank')
+                            }
+                        }
                     }
                 })
             }
