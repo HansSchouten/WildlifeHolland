@@ -15,7 +15,8 @@ export default {
 
     data () {
         return {
-            knownNearbyObservations: []
+            knownNearbyObservations: [],
+            coordinates: null
         }
     },
 
@@ -27,13 +28,18 @@ export default {
     },
 
     async mounted () {
+        this.$watchLocation({
+            enableHighAccuracy: true,
+            timeout: Infinity,
+            maximumAge: 0
+        }).then(c => { this.coordinates = c.lat + ',' + c.lng })
+
         await this.fetchNearbyObservations()
         this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
-        await this.sleep(5000)
 
         while (true) {
+            await this.sleep(10000)
             await this.notifyNewNearbySightings()
-            await this.sleep(5000)
         }
     },
     methods: {
@@ -52,7 +58,9 @@ export default {
         },
         async fetchNearbyObservations () {
             let payload = {
-                period: this.filterPeriods[1]
+                period: this.filterPeriods[1],
+                coordinates: this.coordinates,
+                range: '20km'
             }
             await this.$store.dispatch('observations/fetchNearbyObservations', payload)
         },
