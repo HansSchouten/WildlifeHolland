@@ -57,6 +57,14 @@ class ObservationsController extends Controller
             ],
             'timestamp' => $timestamp
         ];
+
+        if ($request->has('coordinates')) {
+            $parameters['geofilter'] = [
+                'coordinates' => $request->get('coordinates'),
+                'distance' => $request->get('range')
+            ];
+        }
+
         $observations = Observation::search($parameters);
         return new ObservationsCollection($observations);
     }

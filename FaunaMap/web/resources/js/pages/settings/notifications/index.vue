@@ -42,7 +42,7 @@ export default {
         this.knownNearbyObservations = this.nearbyObservations.map(observation => { return observation.id })
 
         while (true) {
-            await this.sleep(10000)
+            await this.sleep(20000)
             await this.notifyNewNearbySightings()
         }
     },
@@ -54,7 +54,6 @@ export default {
             for (let i = 0; i < this.nearbyObservations.length; i++) {
                 let observation = this.nearbyObservations[i]
                 if (!(this.knownNearbyObservations.includes(observation.id))) {
-                    console.log(observation.specieName + ' nearby!')
                     await this.notifyObservation(observation)
                 }
             }
@@ -85,9 +84,18 @@ export default {
             // add distance
             if (this.coordinates !== null) {
                 let distance = this.geoDistance(this.coordinates, observation.location)
-                let distanceText = (distance < 1) ? Math.round(distance / 1000) + 'm' : Number(distance.toFixed(2)) + 'km'
+                let distanceText = Math.round(distance / 1000) + 'm'
+                if (distance >= 1 && distance < 5) {
+                    distanceText = Number(distance.toFixed(2)) + 'km'
+                } else if (distance >= 5 && distance < 10) {
+                    distanceText = Number(distance.toFixed(1)) + 'km'
+                } else if (distance >= 10) {
+                    distanceText = Math.round(distance) + 'km'
+                }
                 text += ' op ' + distanceText
             }
+
+            console.log(text)
             await this.notify(text)
         },
         async notify (text) {

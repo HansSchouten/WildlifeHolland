@@ -205,19 +205,36 @@ class Observation extends Model
             $must[] = ['match' => [$key => $value]];
         }
 
+        $filters = [
+            [
+                'range' => [
+                    'timestamp' => [
+                        'gte' => $parameters['timestamp']
+                    ]
+                ]
+            ]
+        ];
+
+        if (isset($parameters['geofilter'])) {
+            list($lat, $lon) = explode(',', $parameters['geofilter']['coordinates']);
+            $filters[] = [
+                'geo_distance' => [
+                    'distance' => $parameters['geofilter']['distance'],
+                    'location' => [
+                        'lat' => $lat,
+                        'lon' => $lon
+                    ]
+                ]
+            ];
+        }
+
         $query = [
             'index' => (new self())->getIndexName(),
             'body' => [
                 'query' => [
                     'bool' => [
                         'must' => $must,
-                        'filter' => [
-                            'range' => [
-                                'timestamp' => [
-                                    'gte' => $parameters['timestamp']
-                                ]
-                            ]
-                        ]
+                        'filter' => $filters
                     ]
                 ],
                 'sort' => [
