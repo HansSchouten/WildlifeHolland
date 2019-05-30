@@ -27,13 +27,17 @@
             </q-item-section>
         </q-item>
 
+        <q-item clickable icon="notification" class="non-selectable top-level" :to="{ name: 'notifications' }">
+            <q-item-section avatar>
+                <q-icon color="primary" name="notifications"/>
+            </q-item-section>
+            <q-item-section>
+                {{ $t('notifications') }}
+            </q-item-section>
+        </q-item>
+
         <q-expansion-item :label="$t('settings')" icon="settings" class="non-selectable top-level">
             <q-list>
-                <q-item clickable :insetLevel="1" dense :to="{ name: 'settings.notifications' }">
-                    <q-item-section>
-                        {{ $t('notifications') }}
-                    </q-item-section>
-                </q-item>
                 <q-item clickable :insetLevel="1" dense :to="{ name: 'settings.profile' }">
                     <q-item-section>
                         {{ $t('profile') }}

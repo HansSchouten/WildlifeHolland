@@ -6,10 +6,10 @@ const NotFound = () => import('~/pages/errors/404').then(m => m.default || m)
 
 const Dashboard = () => import('~/pages/dashboard').then(m => m.default || m)
 const Map = () => import('~/pages/map/map').then(m => m.default || m)
+const Notifications = () => import('~/pages/notifications').then(m => m.default || m)
 
 const Settings = () => import('~/pages/settings/index').then(m => m.default || m)
 const SettingsProfile = () => import('~/pages/settings/profile/index').then(m => m.default || m)
-const SettingsNotifications = () => import('~/pages/settings/notifications/index').then(m => m.default || m)
 
 export default [
     { path: '/login', name: 'login', component: Login },
@@ -19,13 +19,14 @@ export default [
 
     { path: '/dashboard', name: 'dashboard', component: Dashboard },
     { path: '/map', name: 'map', component: Map },
+    { path: '/notifications', name: 'notifications', component: Notifications },
+
     {
         path: '/settings',
         component: Settings,
         children: [
             { path: '', redirect: { name: 'settings.profile' } },
-            { path: 'profile', name: 'settings.profile', component: SettingsProfile },
-            { path: 'notifications', name: 'settings.notifications', component: SettingsNotifications }
+            { path: 'profile', name: 'settings.profile', component: SettingsProfile }
         ]
     },
 
