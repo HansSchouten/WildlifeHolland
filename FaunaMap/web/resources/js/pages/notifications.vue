@@ -1,5 +1,14 @@
 <template>
-    <div>
+    <div class="q-pa-md">
+        <q-banner class="bg-grey-3" v-if="showBanner">
+            <template v-slot:avatar>
+                <q-icon name="tab" color="primary" />
+            </template>
+            Houdt deze pagina in een tabblad open om notificaties te ontvangen van waarnemingen binnen 20km
+            <template v-slot:action>
+                <q-btn flat color="primary" label="Sluiten" v-on:click="showBanner = false" />
+            </template>
+        </q-banner>
     </div>
 </template>
 
@@ -16,7 +25,8 @@ export default {
     data () {
         return {
             knownNearbyObservations: [],
-            coordinates: null
+            coordinates: null,
+            showBanner: true
         }
     },
 
