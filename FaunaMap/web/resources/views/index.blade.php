@@ -2,7 +2,8 @@
 $config = [
     'appName' => config('app.name'),
     'locale' => $locale = app()->getLocale(),
-    'locales' => config('app.locales')
+    'locales' => config('app.locales'),
+    'mapbox_token' => config('faunamap.mapbox_token'),
 ];
 
 $quasarConfig = [

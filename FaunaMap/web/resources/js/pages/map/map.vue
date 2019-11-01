@@ -59,8 +59,8 @@ export default {
                 direction: 'top',
                 offset: this.tooltipOffset()
             },
-            url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
-            attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
+            url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{z}/{x}/{y}?access_token=' + window.config['mapbox_token'],
+            attribution: '<a href="https://www.mapbox.com/map-feedback/">Mapbox</a> | <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             markers: []
         }
     },
