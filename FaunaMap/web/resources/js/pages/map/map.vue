@@ -1,6 +1,6 @@
 <template>
     <q-page id="page-map">
-        <div id="leaflet-map" :class="`absolute ` + getMarkerClass()" style="width: 100%; height: 100%"></div>
+        <div id="leaflet-map" class="absolute custom-markers"></div>
     </q-page>
 </template>
 
@@ -94,10 +94,7 @@ export default {
                 [b.getNorth(), b.getEast()],
                 [b.getSouth(), b.getWest()]
             ], true)
-            this.zoom = Math.min(this.zoom, 13)
-        },
-        getMarkerClass () {
-            return 'custom-markers'
+            this.map.setZoom(Math.min(this.map.getZoom(), 13))
         },
         getIcon (observation) {
             let factor = observation.specieAbundance / (observation.maxSpeciesCount / 4)
