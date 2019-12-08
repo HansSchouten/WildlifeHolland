@@ -1,39 +1,15 @@
 <template>
     <q-page id="page-map">
-        <l-map
-            ref="map"
-            :zoom="zoom"
-            :options="mapOptions"
-            :class="`absolute ` + markerClass()">
-            <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-
-            <l-marker
-                v-for="marker in markers"
-                :key="marker.id"
-                :lat-lng="marker.position"
-                :icon="marker.icon"
-                @click="markerClicked(marker)">
-
-                <l-tooltip
-                    :options="tooltipOptions"
-                    v-if="$q.platform.is.desktop"
-                    :content="marker.tooltip" />
-
-                <l-popup :content="marker.popup" />
-            </l-marker>
-
-        </l-map>
+        <div id="leaflet-map" :class="`absolute ` + getMarkerClass()" style="width: 100%; height: 100%"></div>
     </q-page>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import L from 'leaflet'
-import { LMap, LTileLayer, LMarker, LTooltip, LPopup } from 'vue2-leaflet'
 
 export default {
     middleware: 'auth',
-    components: { LMap, LTileLayer, LMarker, LTooltip, LPopup },
 
     metaInfo () {
         return { title: this.$t('map') }
@@ -49,33 +25,39 @@ export default {
     data () {
         return {
             map: null,
-            zoom: null,
-            mapOptions: {
-                zoomControl: false,
-                attributionControl: false,
-                zoomSnap: false
-            },
-            tooltipOptions: {
-                direction: 'top',
-                offset: this.tooltipOffset()
-            },
             url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{z}/{x}/{y}?access_token=' + window.config['mapbox_token'],
             attribution: '<a href="https://www.mapbox.com/map-feedback/">Mapbox</a> | <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            markers: []
+            markers: [],
+            markerLayer: L.layerGroup()
         }
     },
 
     mounted () {
+        this.createMap()
         this.$nextTick(() => {
             this.fetchObservations()
-            this.map = this.$refs.map
-            this.map.mapObject.on('moveend', () => {
-                this.zoom = this.map.mapObject.getZoom()
-            })
         })
     },
 
     methods: {
+        createMap () {
+            this.map = L.map('leaflet-map', {
+                gestureHandling: true,
+                attributionControl: false
+            })
+            let attribution = {
+                attribution: this.attribution
+            }
+            // increase font size on larger screens
+            if (!L.Browser.mobile) {
+                attribution.tileSize = 512
+                attribution.zoomOffset = -1
+            }
+            // load tile layer
+            L.tileLayer(this.url, attribution).addTo(this.map)
+            // add markers layer
+            this.map.addLayer(this.markerLayer)
+        },
         async fetchObservations () {
             let payload = {
                 specie: this.$route.query.specie,
@@ -87,50 +69,37 @@ export default {
         updateMarkers () {
             let markers = []
             this.observations.forEach((observation) => {
-                markers.push({
-                    id: observation.id,
-                    position: { lat: observation.lat, lng: observation.long },
+                let marker = L.marker([observation.lat, observation.long], {
                     icon: this.getIcon(observation),
-                    tooltip: observation.specieName + '<br>' + observation.timestamp,
-                    popup: observation.specieName + '<br>' +
-                        observation.timestamp +
-                        '<br><a target="_blank" href="https://waarneming.nl/observation/' +
-                        observation.id +
-                        '">Bekijk waarneming</a>'
+                    tooltip: observation.specieName + '<br>' + observation.timestamp
                 })
+                marker.bindPopup(observation.specieName + '<br>' +
+                  observation.timestamp +
+                  '<br><a target="_blank" href="https://waarneming.nl/observation/' +
+                  observation.id +
+                  '">Bekijk waarneming</a>')
+                markers.push(marker)
             })
             this.markers = markers
+
+            this.map.removeLayer(this.markerLayer)
+            this.markerLayer = L.layerGroup(markers)
+            this.markerLayer.addTo(this.map)
+
             this.updateBounds()
         },
         updateBounds () {
-            let b = L.latLngBounds([this.markers.map(o => o.position)]).pad(0.1)
+            let b = L.latLngBounds([this.markers.map(o => o.getLatLng())]).pad(0.1)
             this.map.fitBounds([
                 [b.getNorth(), b.getEast()],
                 [b.getSouth(), b.getWest()]
             ], true)
             this.zoom = Math.min(this.zoom, 13)
         },
-        markerClicked (marker) {
-        },
-        tooltipOffset () {
-            if (this.hasCustomMarker()) {
-                return [-4, -28]
-            }
-            return [0, -15]
-        },
-        markerClass () {
-            if (this.hasCustomMarker()) {
-                return 'custom-markers'
-            }
-            return 'default-markers'
-        },
-        hasCustomMarker () {
-            return (!this.$route.query.specie)
+        getMarkerClass () {
+            return 'custom-markers'
         },
         getIcon (observation) {
-            if (!this.hasCustomMarker()) {
-                return null
-            }
             let factor = observation.specieAbundance / (observation.maxSpeciesCount / 4)
             factor = Math.min(factor, 1)
 
