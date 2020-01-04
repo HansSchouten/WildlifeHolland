@@ -115,7 +115,7 @@ class Observation extends Model
         foreach ($observationsFiles as $observationsFile) {
             $date = str_replace('observations-', '', basename($observationsFile, '.json'));
             $jsonObservations = file_get_contents($observationsFile);
-            $structuredObservations = json_decode($jsonObservations,true);
+            $structuredObservations = json_decode($jsonObservations,true) ?? [];
             self::addFlattenedObservations($observations, [], $species, $structuredObservations, $date);
         }
 
@@ -144,7 +144,7 @@ class Observation extends Model
         $species = json_decode($jsonSpecies, true);
 
         $jsonObservations = file_get_contents($observationsFile);
-        $structuredObservations = json_decode($jsonObservations,true);
+        $structuredObservations = json_decode($jsonObservations,true) ?? [];
         self::addFlattenedObservations($observations, $knownObservationIds, $species, $structuredObservations, $date);
 
         return $observations;
