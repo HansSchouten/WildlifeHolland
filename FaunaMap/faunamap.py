@@ -1,5 +1,6 @@
 import sys, getopt, os
 from configparser import ConfigParser
+from datetime import datetime
 
 from faunamap.monitors import ObsMonitor
 
@@ -10,11 +11,12 @@ def main(argv):
 	"""
 	# default arguments
 	command = 'monitor'
+	parameter = None
 
 	# parse command line arguments
 	usage = 'Usage:\n\n$ faunamap.py -c monitor\n'
 	try:
-		opts, args = getopt.getopt(argv,"hc:",["command="])
+		opts, args = getopt.getopt(argv,"hc:p:",["command=","parameter="])
 	except getopt.GetoptError:
 		print(usage)
 		sys.exit(2)
@@ -24,6 +26,8 @@ def main(argv):
 			sys.exit()
 		if opt in ('-c', '--command'):
 			command = arg
+		if opt in ('-p', '--parameter'):
+			parameter = arg
 
 	# parse config
 	baseDir = os.path.dirname(os.path.realpath(__file__))
@@ -40,15 +44,19 @@ def main(argv):
 	if command == 'monitor':
 		monitor = ObsMonitor(config)
 		monitor.sync()
-	
+	elif command == 'sync-date':
+		monitor = ObsMonitor(config)
+		date = datetime.strptime(parameter, '%Y-%m-%d').date()
+		monitor.syncForDate(date)
+
 
 if __name__ == "__main__":
 	print(r"""
-  _____                       __  __             
- |  ___|_ _ _   _ _ __   __ _|  \/  | __ _ _ __  
- | |_ / _` | | | | '_ \ / _` | |\/| |/ _` | '_ \ 
+  _____                       __  __
+ |  ___|_ _ _   _ _ __   __ _|  \/  | __ _ _ __
+ | |_ / _` | | | | '_ \ / _` | |\/| |/ _` | '_ \
  |  _| (_| | |_| | | | | (_| | |  | | (_| | |_) |
- |_|  \__,_|\__,_|_| |_|\__,_|_|  |_|\__,_| .__/ 
-                                          |_|    
+ |_|  \__,_|\__,_|_| |_|\__,_|_|  |_|\__,_| .__/
+                                          |_|
 	""")
 	main(sys.argv[1:])

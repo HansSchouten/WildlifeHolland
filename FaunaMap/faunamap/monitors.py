@@ -20,7 +20,14 @@ class ObsMonitor:
 
 	def sync(self):
 		"""
-		Sync observations with the remote data source.
+		Sync the latest observations with the remote data source.
+
+		"""
+		return self.syncForDate(d.today())
+
+	def syncForDate(self, date):
+		"""
+		Sync observations with the remote data source for the given date.
 
 		"""
 		# return if the SyncDelay has not passed since the previous sync
@@ -34,8 +41,7 @@ class ObsMonitor:
 		startTimestamps['list'].append(str(datetime.now()))
 		self.storage.store('start-timestamps', startTimestamps)
 
-		# load today's observations from disk
-		date = d.today()
+		# load earlier observations from disk
 		observations = Observations(self.config, date)
 		observations.load()
 
@@ -47,7 +53,7 @@ class ObsMonitor:
 	def canSync(self):
 		"""
 		Return whether a sync can be performed, based on the SyncDelay.
-		
+
 		"""
 		status = self.storage.get('status')
 		if status == {}:
