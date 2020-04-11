@@ -30,10 +30,6 @@ class ObsMonitor:
 		Sync observations with the remote data source for the given date.
 
 		"""
-		# return if the SyncDelay has not passed since the previous sync
-		if not self.canSync():
-			return
-
 		# store starting timestamp
 		startTimestamps = self.storage.get('start-timestamps')
 		if len(startTimestamps) == 0:

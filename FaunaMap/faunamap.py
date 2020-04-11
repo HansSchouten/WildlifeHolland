@@ -43,11 +43,13 @@ def main(argv):
 	# run FaunaMap with the passed command
 	if command == 'monitor':
 		monitor = ObsMonitor(config)
-		monitor.sync()
+		if monitor.canSync():
+			monitor.sync()
 	elif command == 'sync-date':
 		monitor = ObsMonitor(config)
-		date = datetime.strptime(parameter, '%Y-%m-%d').date()
-		monitor.syncForDate(date)
+		if monitor.canSync():
+			date = datetime.strptime(parameter, '%Y-%m-%d').date()
+			monitor.syncForDate(date)
 
 
 if __name__ == "__main__":
