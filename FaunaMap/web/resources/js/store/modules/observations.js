@@ -14,7 +14,10 @@ export const state = {
         { id: '24', text: 'Afgelopen 24uur' },
         { id: '48', text: 'Afgelopen 2 dagen' },
         { id: '72', text: 'Afgelopen 3 dagen' },
-        { id: '168', text: 'Afgelopen week' }
+        { id: '168', text: 'Afgelopen week' },
+        { id: '672', text: 'Afgelopen maand' },
+        { id: '1344', text: 'Afgelopen 2 maanden' },
+        { id: '2688', text: 'Afgelopen kwartaal' }
     ],
     filterPeriod: { id: '24', text: 'Afgelopen 24uur' }
 }
