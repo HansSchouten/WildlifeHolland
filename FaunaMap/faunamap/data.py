@@ -1,4 +1,6 @@
 import os, json
+import glob
+import csv
 
 class Storage:
 	"""
@@ -29,6 +31,36 @@ class Storage:
 				return json.load(file)
 		else:
 			return {}
+
+	def delete(self, identifier):
+		"""
+		Delete the data stored with the given identifier.
+
+		"""
+		if os.path.isfile(self.dataDir + identifier + '.json'):
+			os.remove(self.dataDir + identifier + '.json')
+		elif os.path.isfile(self.dataDir + identifier + '.csv'):
+			os.remove(self.dataDir + identifier + '.csv')
+
+	def writeCsv(self, identifier, data):
+		"""
+		Store the passed data using the given identifier.
+
+		"""
+		with open(self.dataDir + identifier + '.csv', 'w') as csvFile:
+			writer = csv.DictWriter(csvFile, fieldnames=data[0].keys())
+			writer.writeheader()
+			for entry in data:
+				writer.writerow(entry)
+
+	def list(self):
+		"""
+		List all stored data files.
+
+		"""
+		dataFiles = glob.glob(self.dataDir + "/observations-*.json")
+		dataFiles.sort()
+		return dataFiles
 
 
 class Observations:
@@ -113,6 +145,13 @@ class Observations:
 
 		"""
 		return observationId in self.flattened
+
+	def getList(self):
+		"""
+		Get a flattened list of all observations.
+
+		"""
+		return self.flattened
 
 
 class Species:

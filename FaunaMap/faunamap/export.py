@@ -21,3 +21,16 @@ class ObsExporter:
 		Export all observations as CSV file.
 
 		"""
+		entries = []
+
+		for dataFile in self.storage.list():
+			dateString = dataFile.replace('.json', '').split('-', 1)[1]
+			date = datetime.strptime(dateString, '%Y-%m-%d')
+			observations = Observations(self.config, date)
+			observations.load()
+
+			for (id, observation) in observations.getList().items():
+				entries.append(observation)
+			break
+
+		self.storage.writeCsv('export', entries)
