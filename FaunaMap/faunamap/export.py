@@ -42,7 +42,7 @@ class ObsExporter:
 				if (rawObservation['time'] != None):
 					observation['timestamp'] += ' ' + rawObservation['time']
 				observation['specieName'] = rawObservation['specieName']
-				observation['specieFamily'] = 'Onbekend' if specie is None else specie['family'].replace('"', '')
+				observation['specieFamily'] = 'Onbekend' if specie is None else specie['family']
 				observation['specieGroup'] = specieGroups[int(rawObservation['specieGroup']) - 1]
 				observation['specieAbundance'] = '' if specie is None else specie['observationCount']
 				observation['province'] = provinces[int(rawObservation['province']) - 1]
