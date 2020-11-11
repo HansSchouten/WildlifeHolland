@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from datetime import datetime
 
 from faunamap.monitors import ObsMonitor
+from faunamap.export import ObsExporter
 
 def main(argv):
 	"""
@@ -50,6 +51,9 @@ def main(argv):
 		if monitor.canSync():
 			date = datetime.strptime(parameter, '%Y-%m-%d').date()
 			monitor.syncForDate(date)
+	elif command == 'export':
+		exporter = ObsExporter(config)
+		exporter.exportCsv()
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import os, json
 
 class Storage:
 	"""
-	This class is responsible for retreiving and storing different types of data.
+	This class is responsible for retrieving and storing different types of data.
 
 	"""
 
@@ -58,7 +58,7 @@ class Observations:
 
 		"""
 		self.data = self.storage.get(self.identifier)
-		
+
 		# map data to flattened observations
 		for specieGroup in self.data:
 			for province in self.data[specieGroup]:
