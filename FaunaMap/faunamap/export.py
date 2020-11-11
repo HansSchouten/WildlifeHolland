@@ -29,8 +29,22 @@ class ObsExporter:
 			observations = Observations(self.config, date)
 			observations.load()
 
-			for (id, observation) in observations.getList().items():
-				entries.append(observation)
-			break
+			specieGroups = ['Vogels', 'Zoogdieren', 'Reptielen en amfibieën']
+			provinces = ['Utrecht', 'Noord-Holland', 'Friesland', 'Groningen', 'Drenthe', 'Overijssel', 'Gelderland', 'Flevoland', 'Zuid-Holland', 'Noord-Brabant', 'Limburg', 'Zeeland']
 
+			for (id, rawObservation) in observations.getList().items():
+				observation = {}
+				observation['id'] = rawObservation['id']
+				observation['timestamp'] = dateString
+				if (rawObservation['time'] != None):
+					observation['timestamp'] += ' ' + rawObservation['time']
+				observation['specieName'] = rawObservation['specieName']
+				observation['specieGroup'] = specieGroups[int(rawObservation['specieGroup']) - 1]
+				observation['province'] = provinces[int(rawObservation['province']) - 1]
+				observation['latitude'] = rawObservation['lat']
+				observation['longitude'] = rawObservation['long']
+
+				entries.append(observation)
+
+		entries = sorted(entries, key=lambda k: k['id'])
 		self.storage.writeCsv('export', entries)
