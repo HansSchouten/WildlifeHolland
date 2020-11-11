@@ -179,6 +179,15 @@ class Species:
 		"""
 		return name in self.data
 
+	def get(self, name):
+		"""
+		Return details of the given specie.
+
+		"""
+		if self.contains(name):
+			return self.data[name]
+		return None
+
 	def add(self, specie):
 		"""
 		Add a new specie with the given specie data.
