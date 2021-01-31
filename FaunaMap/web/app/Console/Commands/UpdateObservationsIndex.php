@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Observation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class UpdateObservationsIndex extends Command
 {
@@ -36,26 +36,6 @@ class UpdateObservationsIndex extends Command
      */
     public function handle()
     {
-        $query = [
-            'index' => (new Observation)->getIndexName(),
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'must' => [
-                            ['match' => ['date' => date('Y-m-d')]]
-                        ],
-                    ]
-                ]
-            ],
-            'size' => 10000
-        ];
-        $knownObservations = Observation::complexSearch($query);
-        $knownObservationIds = [];
-        foreach ($knownObservations as $knownObservation) {
-            $knownObservationIds[] = $knownObservation->id;
-        }
-
-        $observations = Observation::getUnseenJsonObservationsOfDate($knownObservationIds, date('Y-m-d'));
-        $observations->addToIndex();
+        Artisan::call("observations:import", ['since' => date("Y-m-d")]);
     }
 }

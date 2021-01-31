@@ -48,9 +48,8 @@ def main(argv):
 			monitor.sync()
 	elif command == 'sync-date':
 		monitor = ObsMonitor(config)
-		if monitor.canSync():
-			date = datetime.strptime(parameter, '%Y-%m-%d').date()
-			monitor.syncForDate(date)
+		date = datetime.strptime(parameter, '%Y-%m-%d').date()
+		monitor.syncForDate(date)
 	elif command == 'export':
 		exporter = ObsExporter(config)
 		exporter.exportCsv()
