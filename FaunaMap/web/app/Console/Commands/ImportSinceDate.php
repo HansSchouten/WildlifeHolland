@@ -5,21 +5,21 @@ namespace App\Console\Commands;
 use App\Models\Observation;
 use Illuminate\Console\Command;
 
-class UpdateObservationsIndex extends Command
+class ImportSinceDate extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'observations:update';
+    protected $signature = 'observations:import {since}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update the observations elastic index.';
+    protected $description = 'Import observations into elastic since the given date.';
 
     /**
      * Create a new command instance.
@@ -36,13 +36,27 @@ class UpdateObservationsIndex extends Command
      */
     public function handle()
     {
+        $since = basename($this->argument('since'));
+
+        $period = new \DatePeriod(
+            new \DateTime($since),
+            new \DateInterval('P1D'),
+            now()
+        );
+        foreach ($period as $key => $date) {
+            $this->importForDate($date->format('Y-m-d'));
+        }
+    }
+
+    protected function importForDate($date)
+    {
         $query = [
             'index' => (new Observation)->getIndexName(),
             'body' => [
                 'query' => [
                     'bool' => [
                         'must' => [
-                            ['match' => ['date' => date('Y-m-d')]]
+                            ['match' => ['date' => $date]]
                         ],
                     ]
                 ]
@@ -55,7 +69,7 @@ class UpdateObservationsIndex extends Command
             $knownObservationIds[] = $knownObservation->id;
         }
 
-        $observations = Observation::getUnseenJsonObservationsOfDate($knownObservationIds, date('Y-m-d'));
+        $observations = Observation::getUnseenJsonObservationsOfDate($knownObservationIds, $date);
         $observations->addToIndex();
     }
 }

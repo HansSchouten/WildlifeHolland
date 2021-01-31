@@ -126,13 +126,13 @@ class Observation extends Model
      * Return all observations stored in today's JSON file with ids different than the given list of ids.
      *
      * @param array $knownObservationIds
+     * @param $date
      * @return \Elasticquent\ElasticquentCollection
      */
-    public static function getUnseenJsonObservationsOfToday(array $knownObservationIds)
+    public static function getUnseenJsonObservationsOfDate(array $knownObservationIds, $date)
     {
         $observations = (new Observation)->newCollection();
 
-        $date = date('Y-m-d');
         $observationsFile = getDataPath('observations-' . $date . '.json');
         if (! file_exists($observationsFile)) {
             return $observations;
